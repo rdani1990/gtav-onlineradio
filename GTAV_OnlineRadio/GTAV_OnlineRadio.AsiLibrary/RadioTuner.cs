@@ -18,11 +18,15 @@ namespace GTAV_OnlineRadio.AsiLibrary
     /// </summary>
     public class RadioTuner : IDisposable
     {
+        private const string RADIO_DIRECTORY = "radios";
+
         private Radio[] _radios;
         private int? _activeStationIndex; // the currently selected station
         private int? _nextStationIndex; // the next station which gonna start, if activated
 
         public bool IsRadioOn => _radios.Any(r => r.IsPlaying);
+
+        public bool HasRadios => (_radios.Length > 0);
 
         public Radio CurrentStation
         {
@@ -154,12 +158,13 @@ namespace GTAV_OnlineRadio.AsiLibrary
 
         public static string GetRadioFolder(bool addLog)
         {
+            // checking at the installation path of GTA V
             string folder = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Rockstar Games\Grand Theft Auto V", "InstallFolder", null);
             bool exists = false;
 
             if (!String.IsNullOrEmpty(folder))
             {
-                folder = Path.Combine(folder, "radios");
+                folder = Path.Combine(folder, RADIO_DIRECTORY);
                 exists = Directory.Exists(folder);
 
                 if (addLog)
@@ -173,15 +178,15 @@ namespace GTAV_OnlineRadio.AsiLibrary
                 return folder;
             }
 
-            folder = Path.Combine(Path.GetFullPath("."), "radios");
-            exists = Directory.Exists(folder);
-
+            // checking at the folder of the executing assembly
+            // as an ASI plugin, it's the main directory of GTA V, since ScriptHookVDotNet.dll runs there. For other tools, it's the tool directory itself.
+            folder = Path.Combine(Directory.GetCurrentDirectory(), RADIO_DIRECTORY);
             if (addLog)
             {
-                Logger.Instance.Log("Looking for folder '{0}'... Folder {1}.", folder, exists ? "found" : "not found");
+                Logger.Instance.Log("Using default folder '{0}'.", folder);
             }
 
-            return (exists ? folder : null);
+            return folder;
         }
 
         private static Dictionary<string, XElement> ReadConfig(string radioFolder)

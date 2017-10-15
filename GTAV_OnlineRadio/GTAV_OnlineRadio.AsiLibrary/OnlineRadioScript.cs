@@ -31,15 +31,22 @@ namespace GTAV_OnlineRadio.AsiLibrary
 
         public OnlineRadioScript()
         {
-            Tick += OnTick;
-            Interval = 100;
+            if (RadioTuner.Instance.HasRadios)
+            {
+                Tick += OnTick;
+                Interval = 100;
 
-            KeyDown += OnlineRadioScript_KeyDown;
-            KeyUp += OnlineRadioScript_KeyUp;
+                KeyDown += OnlineRadioScript_KeyDown;
+                KeyUp += OnlineRadioScript_KeyUp;
 
-            _vehicleRadioManager = new VehicleRadioManager();
-            
-            Radio.PauseIfNotNofified = true;
+                _vehicleRadioManager = new VehicleRadioManager();
+
+                Radio.PauseIfNotNofified = true;
+            }
+            else
+            {
+                Logger.Instance.Log("No radios were found. The script is shutting down...");
+            }
         }
 
         private void OnTick(object sender, EventArgs e)

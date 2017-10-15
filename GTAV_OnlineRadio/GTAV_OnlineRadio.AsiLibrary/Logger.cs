@@ -30,9 +30,12 @@ namespace GTAV_OnlineRadio.AsiLibrary
 
         private void Initialize()
         {
-            _logger = new StreamWriter(Path.Combine(RadioTuner.GetRadioFolder(false), "GTAV_OnlineRadio.log"), true);
+            string radioFolder = RadioTuner.GetRadioFolder(false);
+            Directory.CreateDirectory(radioFolder);
+
+            _logger = new StreamWriter(Path.Combine(radioFolder, "GTAV_OnlineRadio.log"), true);
             _logger.AutoFlush = true;
-            _trackLogger = new StreamWriter(Path.Combine(RadioTuner.GetRadioFolder(false), "GTAV_OnlineRadio_Tracks.log"), true);
+            _trackLogger = new StreamWriter(Path.Combine(radioFolder, "GTAV_OnlineRadio_Tracks.log"), true);
             _trackLogger.AutoFlush = true;
         }
 

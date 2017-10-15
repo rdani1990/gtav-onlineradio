@@ -7,12 +7,18 @@ namespace GTAV_OnlineRadio.Console
     {
         static void Main(string[] args)
         {
+            if (!RadioTuner.Instance.HasRadios)
+            {
+                System.Console.WriteLine("No radios were found.");
+                return;
+            }
+
             RadioTuner.Instance.Play();
             var newStation = RadioTuner.Instance.CurrentStation;
 
             while (true)
             {
-                System.Console.WriteLine(newStation?.Name ?? "??");
+                System.Console.WriteLine(newStation.Name ?? "??");
 
                 switch (System.Console.ReadKey().Key)
                 {
