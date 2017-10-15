@@ -1,0 +1,324 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Radios>
+  <Radio path="Blues FM">
+    <Volume>0.2</Volume>
+  </Radio>
+  <Radio path="Luxfunk Radio">
+    <Volume>0.3</Volume>
+  </Radio>
+  <Radio path="Jazzy 90.9 FM">
+    <Volume>0.5</Volume>
+  </Radio>
+  <Radio path="La Grosse Radio Reggae">
+    <Volume>0.2</Volume>
+  </Radio>
+  <Radio path="Audiophile Lounge">
+    <Volume>0.2</Volume>
+  </Radio>
+  <Radio path="Chill-out Zone">
+    <Volume>0.2</Volume>
+  </Radio>
+  <Radio path="Discomania">
+    <Volume>0.1</Volume>
+  </Radio>
+  <Radio path="Salsa Brava">
+    <Volume>0.2</Volume>
+  </Radio>
+  <Radio path="JR.FM Latin Beats">
+    <Volume>0.3</Volume>
+  </Radio>
+  <Radio path="UK Roots FM">
+    <Volume>0.3</Volume>
+  </Radio>
+  <Radio path="Espantoso">
+    <Volume>0.25</Volume>
+	<TrackList>
+		<Track>
+			<Artist>Cachao</Artist>
+			<Title>A Gozar Con Mi Combo</Title>
+			<Start>0:00:16</Start>
+			<End>0:05:24</End>
+		</Track>
+		<Track>
+			<Artist>Alpha Banditos</Artist>
+			<Title>The Bull is Wrong</Title>
+			<Start>0:05:38</Start>
+			<End>0:08:52</End>
+		</Track>
+		<Track>
+			<Artist>Tres Apenas Como Eso</Artist>
+			<Title>Yo Te Miré</Title>
+			<Start>0:09:15</Start>
+			<End>0:12:37</End>
+		</Track>
+		<Track>
+			<Artist>Deodato</Artist>
+			<Title>Latin Flute</Title>
+			<Start>0:14:33</Start>
+			<End>0:18:25</End>
+		</Track>
+		<Track>
+			<Artist>Mongo Santamaría</Artist>
+			<Title>Mama Papa Tú</Title>
+			<Start>0:18:27</Start>
+			<End>0:21:46</End>
+		</Track>
+		<Track>
+			<Artist>Mongo Santamaría</Artist>
+			<Title>Me and You Baby</Title>
+			<Start>0:23:22</Start>
+			<End>0:27:46</End>
+		</Track>
+		<Track>
+			<Artist>Machito &amp; his Afro-Cuban Orchestra</Artist>
+			<Title>Mambo Mucho Mambo</Title>
+			<Start>0:27:48</Start>
+			<End>0:30:46</End>
+		</Track>
+		<Track>
+			<Artist>Unaesta</Artist>
+			<Title>La Vida Es Una Lenteja</Title>
+			<Start>0:30:47</Start>
+			<End>0:34:40</End>
+		</Track>
+		<Track>
+			<Artist>Lonnie Liston Smith</Artist>
+			<Title>Expansions</Title>
+			<Start>0:35:55</Start>
+			<End>0:39:27</End>
+		</Track>
+		<Track>
+			<Artist>Irakere</Artist>
+			<Title>Aguanile</Title>
+			<Start>0:39:30</Start>
+			<End>0:45:20</End>
+		</Track>
+		<Track>
+			<Artist>Deodato</Artist>
+			<Title>Super Strut</Title>
+			<Start>0:45:25</Start>
+			<End>0:50:56</End>
+		</Track>
+		<Track>
+			<Artist>Xavier Cugat &amp; his Orchestra</Artist>
+			<Title>Jamay</Title>
+			<Start>0:52:00</Start>
+			<End>0:54:37</End>
+		</Track>
+		<Track>
+			<Artist>Benny Moré</Artist>
+			<Title>Maracaibo Oriental</Title>
+			<Start>0:54:48</Start>
+			<End>0:57:50</End>
+		</Track>
+		<Track>
+			<Artist>Tito Puente</Artist>
+			<Title>Mambo Gozón</Title>
+			<Start>0:58:55</Start>
+			<End>1:01:38</End>
+		</Track>
+	</TrackList>
+  </Radio>
+  <Radio path="Fever 105">
+    <Volume>0.25</Volume>
+	<TrackList>
+		<Track>
+			<Artist>The Whispers</Artist>
+			<Title>And the Beat Goes On</Title>
+			<Start>0:00:12</Start>
+			<End>0:04:28</End>
+		</Track>
+		<Track>
+			<Artist>Fat Larry's Band</Artist>
+			<Title>Act Like You Know</Title>
+			<Start>0:04:32</Start>
+			<End>0:08:45</End>
+		</Track>
+		<Track>
+			<Artist>Oliver Cheatham</Artist>
+			<Title>Get Down Saturday Night</Title>
+			<Start>0:09:20</Start>
+			<End>0:14:49</End>
+		</Track>
+		<Track>
+			<Artist>Pointer Sisters</Artist>
+			<Title>Automatic</Title>
+			<Start>0:16:03</Start>
+			<End>0:20:40</End>
+		</Track>
+		<Track>
+			<Artist>René &amp; Angela</Artist>
+			<Title>I'll Be Good</Title>
+			<Start>0:20:41</Start>
+			<End>0:24:40</End>
+		</Track>
+		<Track>
+			<Artist>Mary Jane Girls</Artist>
+			<Title>All Night Long</Title>
+			<Start>0:24:46</Start>
+			<End>0:29:23</End>
+		</Track>
+		<Track>
+			<Artist>Rick James</Artist>
+			<Title>Ghetto Life</Title>
+			<Start>0:30:22</Start>
+			<End>0:34:38</End>
+		</Track>
+		<Track>
+			<Artist>Michael Jackson</Artist>
+			<Title>Wanna Be Startin' Somethin'</Title>
+			<Start>0:34:38</Start>
+			<End>0:40:34</End>
+		</Track>
+		<Track>
+			<Artist>Evelyn "Champagne" King</Artist>
+			<Title>Shame</Title>
+			<Start>0:40:36</Start>
+			<End>0:45:00</End>
+		</Track>
+		<Track>
+			<Artist>Teena Marie</Artist>
+			<Title>Behind the Groove</Title>
+			<Start>0:45:46</Start>
+			<End>0:49:10</End>
+		</Track>
+		<Track>
+			<Artist>Mtume</Artist>
+			<Title>Juicy Fruit</Title>
+			<Start>0:49:22</Start>
+			<End>0:53:44</End>
+		</Track>
+		<Track>
+			<Artist>Kool &amp; the Gang</Artist>
+			<Title>Summer Madness</Title>
+			<Start>0:53:44</Start>
+			<End>0:57:55</End>
+		</Track>
+		<Track>
+			<Artist>Indeep</Artist>
+			<Title>Last Night a D.J. Saved My Life</Title>
+			<Start>0:58:58</Start>
+			<End>1:03:06</End>
+		</Track>
+	</TrackList>
+  </Radio>
+  <Radio path="V-Rockk">
+    <Volume>0.25</Volume>
+	<TrackList>
+		<Track>
+			<Artist>Twisted Sisters</Artist>
+			<Title>I Wanna Rock</Title>
+			<Start>0:00:07</Start>
+			<End>0:02:59</End>
+		</Track>
+		<Track>
+			<Artist>Mötley Crüe</Artist>
+			<Title>Too Young To Fall In Love</Title>
+			<Start>0:03:05</Start>
+			<End>0:06:17</End>
+		</Track>
+		<Track>
+			<Artist>Quiet Riot</Artist>
+			<Title>Cum On Feel The Noize</Title>
+			<Start>0:08:29</Start>
+			<End>0:12:34</End>
+		</Track>
+		<Track>
+			<Artist>The Cult</Artist>
+			<Title>She Sells The Sanctuary</Title>
+			<Start>0:14:25</Start>
+			<End>0:18:18</End>
+		</Track>
+		<Track>
+			<Artist>Ozzy Osbourne</Artist>
+			<Title>Bark At The Moon</Title>
+			<Start>0:20:12</Start>
+			<End>0:24:25</End>
+		</Track>
+		<Track>
+			<Artist>Love Fist</Artist>
+			<Title>Dangerous Bastard</Title>
+			<Start>0:25:48</Start>
+			<End>0:28:47</End>
+		</Track>
+		<Track>
+			<Artist>Iron Maiden</Artist>
+			<Title>2 Minutes To Midnight</Title>
+			<Start>0:29:49</Start>
+			<End>0:35:40</End>
+		</Track>
+		<Track>
+			<Artist>Loverboy</Artist>
+			<Title>Working For the Weekend</Title>
+			<Start>0:37:29</Start>
+			<End>0:41:06</End>
+		</Track>
+		<Track>
+			<Artist>Alcatrazz</Artist>
+			<Title>God Blessed Video</Title>
+			<Start>0:42:04</Start>
+			<End>0:45:29</End>
+		</Track>
+		<Track>
+			<Artist>Tesla</Artist>
+			<Title>Cumin' Atcha Live</Title>
+			<Start>0:45:36</Start>
+			<End>0:49:10</End>
+		</Track>
+		<Track>
+			<Artist>Autograph</Artist>
+			<Title>Turn On the Radio</Title>
+			<Start>0:49:18</Start>
+			<End>0:53:43</End>
+		</Track>
+		<Track>
+			<Artist>Megadeth</Artist>
+			<Title>Peace Sells</Title>
+			<Start>0:53:43</Start>
+			<End>0:57:43</End>
+		</Track>
+		<Track>
+			<Artist>Anthrax</Artist>
+			<Title>Madhouse</Title>
+			<Start>0:58:35</Start>
+			<End>1:02:36</End>
+		</Track>
+		<Track>
+			<Artist>Slayer</Artist>
+			<Title>Raining Blood</Title>
+			<Start>1:02:36</Start>
+			<End>1:05:34</End>
+		</Track>
+		<Track>
+			<Artist>Judas Priest</Artist>
+			<Title>You've Got Another Thing Comin'</Title>
+			<Start>1:05:59</Start>
+			<End>1:10:20</End>
+		</Track>
+		<Track>
+			<Artist>Love Fist</Artist>
+			<Title>Fist Fury</Title>
+			<Start>1:10:28</Start>
+			<End>1:13:36</End>
+		</Track>
+		<Track>
+			<Artist>David Lee Roth</Artist>
+			<Title>Yankee Rose</Title>
+			<Start>1:13:40</Start>
+			<End>1:17:23</End>
+		</Track>
+	</TrackList>
+  </Radio>
+  <Radio path="K-Jah Radio West">
+    <Volume>0.3</Volume>
+  </Radio>
+  <Radio path="Radio Los Santos">
+    <Volume>0.3</Volume>
+  </Radio>
+  <Radio path="K-DST">
+    <Volume>0.3</Volume>
+  </Radio>
+  <Radio path="Tropic FM">
+    <Volume>0.3</Volume>
+  </Radio>
+</Radios>
