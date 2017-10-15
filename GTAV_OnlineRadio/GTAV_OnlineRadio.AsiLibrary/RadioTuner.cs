@@ -9,6 +9,7 @@ using System.Net.Configuration;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace GTAV_OnlineRadio.AsiLibrary
@@ -27,6 +28,8 @@ namespace GTAV_OnlineRadio.AsiLibrary
         public bool IsRadioOn => _radios.Any(r => r.IsPlaying);
 
         public bool HasRadios => (_radios.Length > 0);
+
+        public bool IsRadioListLoading { get; private set; }
 
         public Radio CurrentStation
         {
@@ -60,8 +63,12 @@ namespace GTAV_OnlineRadio.AsiLibrary
             {
                 if (_instance == null)
                 {
-                    _instance = new RadioTuner();
-                    _instance.LoadRadios();
+                    _instance = new RadioTuner()
+                    {
+                        IsRadioListLoading = true
+                    };
+
+                    Task.Run((Action)_instance.LoadRadios);
                 }
                 return _instance;
             }
@@ -264,6 +271,8 @@ namespace GTAV_OnlineRadio.AsiLibrary
 
         private void LoadRadios()
         {
+            IsRadioListLoading = true;
+
             string rootFolder = GetRadioFolder(true);
 
             if (rootFolder == null)
@@ -329,6 +338,8 @@ namespace GTAV_OnlineRadio.AsiLibrary
             }
             
             _radios = radios.ToArray();
+
+            IsRadioListLoading = false;
         }
         
         private static string[] ProcessPlaylist(string path)

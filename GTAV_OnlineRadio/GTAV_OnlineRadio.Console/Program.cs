@@ -1,5 +1,6 @@
 ﻿using GTAV_OnlineRadio.AsiLibrary;
 using System;
+using System.Threading;
 
 namespace GTAV_OnlineRadio.Console
 {
@@ -7,6 +8,12 @@ namespace GTAV_OnlineRadio.Console
     {
         static void Main(string[] args)
         {
+            while (RadioTuner.Instance.IsRadioListLoading)
+            {
+                System.Console.WriteLine("Waiting for radios to be loaded...");
+                Thread.Sleep(1000);
+            }
+
             if (!RadioTuner.Instance.HasRadios)
             {
                 System.Console.WriteLine("No radios were found.");

@@ -31,26 +31,34 @@ namespace GTAV_OnlineRadio.AsiLibrary
 
         public OnlineRadioScript()
         {
-            if (RadioTuner.Instance.HasRadios)
-            {
-                Tick += OnTick;
-                Interval = 100;
+            Tick += OnTick;
+            Interval = 100;
 
-                KeyDown += OnlineRadioScript_KeyDown;
-                KeyUp += OnlineRadioScript_KeyUp;
+            KeyDown += OnlineRadioScript_KeyDown;
+            KeyUp += OnlineRadioScript_KeyUp;
 
-                _vehicleRadioManager = new VehicleRadioManager();
+            _vehicleRadioManager = new VehicleRadioManager();
 
-                Radio.PauseIfNotNofified = true;
-            }
-            else
-            {
-                Logger.Instance.Log("No radios were found. The script is shutting down...");
-            }
+            Radio.PauseIfNotNofified = true;
         }
 
         private void OnTick(object sender, EventArgs e)
         {
+            // wait until radios are loaded
+            if (RadioTuner.Instance.IsRadioListLoading)
+            {
+                return;
+            }
+
+            // exit, if no radio was found
+            if (!RadioTuner.Instance.HasRadios)
+            {
+                Logger.Instance.Log("No radios were found. The script is shutting down...");
+                Abort();
+
+                return;
+            }
+
             var player = Game.Player.Character;
             if (_isInVehicle != player.IsInVehicle()) // player state within car has changed against its last known value
             {
