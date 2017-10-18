@@ -7,8 +7,8 @@
     <ProjectGuid>{BC7D7214-A5D1-4F2E-A86D-973E20351F0C}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GTAV_OnlineRadio.Console</RootNamespace>
-    <AssemblyName>GTAV_OnlineRadio.Console</AssemblyName>
+    <RootNamespace>GTAV_OnlineRadio.TestConsolePlayer</RootNamespace>
+    <AssemblyName>GTAV_OnlineRadio.TestConsolePlayer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAV_OnlineRadio.AsiLibrary", "GTAV_OnlineRadio.AsiLibrary\GTAV_OnlineRadio.AsiLibrary.csproj", "{AB2F3624-AFB5-44FF-83D5-4FFAF54ABFEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAV_OnlineRadio.Console", "GTAV_OnlineRadio.Console\GTAV_OnlineRadio.Console.csproj", "{BC7D7214-A5D1-4F2E-A86D-973E20351F0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAV_OnlineRadio.TestConsolePlayer", "GTAV_OnlineRadio.Console\GTAV_OnlineRadio.TestConsolePlayer.csproj", "{BC7D7214-A5D1-4F2E-A86D-973E20351F0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

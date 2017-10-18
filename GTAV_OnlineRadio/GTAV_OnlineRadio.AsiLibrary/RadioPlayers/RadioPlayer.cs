@@ -472,6 +472,11 @@ namespace GTAV_OnlineRadio.AsiLibrary.RadioPlayers
             Stop();
         }
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         /// <summary>
         /// Sets the default volume multiplier with the one set in GTA V
         /// </summary>
