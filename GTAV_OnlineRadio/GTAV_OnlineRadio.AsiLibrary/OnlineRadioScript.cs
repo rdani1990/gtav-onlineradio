@@ -9,6 +9,7 @@ using Font = GTA.Font;
 using System.Diagnostics;
 using System.Collections.Generic;
 using GTAV_OnlineRadio.AsiLibrary.RadioPlayers;
+using System.Threading.Tasks;
 
 namespace GTAV_OnlineRadio.AsiLibrary
 {
@@ -31,34 +32,33 @@ namespace GTAV_OnlineRadio.AsiLibrary
 
         public OnlineRadioScript()
         {
-            Tick += OnTick;
-            Interval = 100;
+            RadioTuner.Instance.RadioLoadingCompleted += OnRadioLoadingCompleted;
 
-            KeyDown += OnlineRadioScript_KeyDown;
-            KeyUp += OnlineRadioScript_KeyUp;
+            Task.Run((Action)RadioTuner.Instance.LoadRadios);
+        }
 
-            _vehicleRadioManager = new VehicleRadioManager();
+        private void OnRadioLoadingCompleted(object sender, EventArgs e)
+        {
+            if (RadioTuner.Instance.HasRadios) // only do anything if there's any radio available...
+            {
+                Tick += OnTick;
+                Interval = 100;
 
-            Radio.PauseIfNotNofified = true;
+                KeyDown += OnKeyDown;
+                KeyUp += OnKeyUp;
+
+                _vehicleRadioManager = new VehicleRadioManager();
+
+                Radio.PauseIfNotNofified = true;
+            }
+            else
+            {
+                Logger.Instance.Log("No radios were found. The script is shutting down...");
+            }
         }
 
         private void OnTick(object sender, EventArgs e)
         {
-            // wait until radios are loaded
-            if (RadioTuner.Instance.IsRadioListLoading)
-            {
-                return;
-            }
-
-            // exit, if no radio was found
-            if (!RadioTuner.Instance.HasRadios)
-            {
-                Logger.Instance.Log("No radios were found. The script is shutting down...");
-                Abort();
-
-                return;
-            }
-
             var player = Game.Player.Character;
             if (_isInVehicle != player.IsInVehicle()) // player state within car has changed against its last known value
             {
@@ -104,7 +104,7 @@ namespace GTAV_OnlineRadio.AsiLibrary
             }
         }
 
-        private void OnlineRadioScript_KeyUp(object sender, KeyEventArgs e)
+        private void OnKeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Z)
             {
@@ -112,7 +112,7 @@ namespace GTAV_OnlineRadio.AsiLibrary
             }
         }
 
-        private void OnlineRadioScript_KeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
             {

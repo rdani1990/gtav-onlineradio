@@ -15,7 +15,7 @@ using System.Xml.Linq;
 namespace GTAV_OnlineRadio.AsiLibrary
 {
     /// <summary>
-    /// Class to change radio stations
+    /// Class to handle radio stations
     /// </summary>
     public class RadioTuner : IDisposable
     {
@@ -25,11 +25,11 @@ namespace GTAV_OnlineRadio.AsiLibrary
         private int? _activeStationIndex; // the currently selected station
         private int? _nextStationIndex; // the next station which gonna start, if activated
 
+        public event EventHandler RadioLoadingCompleted;
+
         public bool IsRadioOn => _radios.Any(r => r.IsPlaying);
 
         public bool HasRadios => (_radios.Length > 0);
-
-        public bool IsRadioListLoading { get; private set; }
 
         public Radio CurrentStation
         {
@@ -63,12 +63,7 @@ namespace GTAV_OnlineRadio.AsiLibrary
             {
                 if (_instance == null)
                 {
-                    _instance = new RadioTuner()
-                    {
-                        IsRadioListLoading = true
-                    };
-
-                    Task.Run((Action)_instance.LoadRadios);
+                    _instance = new RadioTuner();
                 }
                 return _instance;
             }
@@ -269,10 +264,8 @@ namespace GTAV_OnlineRadio.AsiLibrary
             return dirs;
         }
 
-        private void LoadRadios()
+        public void LoadRadios()
         {
-            IsRadioListLoading = true;
-
             string rootFolder = GetRadioFolder(true);
 
             if (rootFolder == null)
@@ -339,7 +332,7 @@ namespace GTAV_OnlineRadio.AsiLibrary
             
             _radios = radios.ToArray();
 
-            IsRadioListLoading = false;
+            RadioLoadingCompleted?.Invoke(this, EventArgs.Empty);
         }
         
         private static string[] ProcessPlaylist(string path)

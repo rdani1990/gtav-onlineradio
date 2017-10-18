@@ -40,20 +40,31 @@ namespace GTAV_OnlineRadio.AsiLibrary.RadioPlayers
 
         private const int DEFAULT_BUFFER_LENGTH_IN_SECONDS = 20;
 
+        /// <summary>
+        /// If this value is true, the playing's gonna stop if KeepAlive() method wasn't invoked within TIME_WITHOUT_SCRIPT_NOTIFY milliseconds.
+        /// </summary>
         public static bool PauseIfNotNofified { get; set; }
 
         private BufferedWaveProvider _bufferedWaveProvider;
         private IWavePlayer _waveOut;
         private volatile StreamingPlaybackState playbackState;
         private VolumeWaveProvider16 volumeProvider;
-        protected Timer _metaSyncTimer; // timer for metadata synchronization
+
+        /// <summary>
+        /// Timer for metadata synchronization.
+        /// </summary>
+        protected Timer _metaSyncTimer;
+
         private Timer _playbackTimer;
         private Stopwatch _stopWatch;
         private object _metaDataLock = new object();
         private bool _restartPlayingInSuspendedStateIfNotified;
         private readonly float _defaultVolume;
 
-        private static float _defaultVolumeMultiplier = 1; // radio volume used in GTA V. 0 = off, 1 = max
+        /// <summary>
+        /// Radio volume used in GTA V. 0 = Off, 1 = Max
+        /// </summary>
+        private static float _defaultVolumeMultiplier = 1;
 
         private float _volume;
         public float Volume
