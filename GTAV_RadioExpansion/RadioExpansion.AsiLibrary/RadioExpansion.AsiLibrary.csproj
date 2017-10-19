@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ScriptHookVDotNet">
-      <HintPath>..\GTAV_OnlineRadio.Core\bin\Debug\ScriptHookVDotNet.dll</HintPath>
+      <HintPath>..\packages\ScriptHookVDotNet\ScriptHookVDotNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
