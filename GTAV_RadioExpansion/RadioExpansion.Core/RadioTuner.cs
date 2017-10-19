@@ -1,4 +1,4 @@
-﻿using GTAV_OnlineRadio.AsiLibrary.RadioPlayers;
+﻿using RadioExpansion.Core.RadioPlayers;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace GTAV_OnlineRadio.AsiLibrary
+namespace RadioExpansion.Core
 {
     /// <summary>
     /// Class to handle radio stations
@@ -107,8 +107,6 @@ namespace GTAV_OnlineRadio.AsiLibrary
             }
 
             _instance = null;
-
-            RadioLogoManager.Cleanup();
         }
 
         public Radio MoveToNextStation()

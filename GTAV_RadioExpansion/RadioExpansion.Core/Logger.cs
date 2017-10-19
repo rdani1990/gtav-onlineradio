@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GTAV_OnlineRadio.AsiLibrary
+namespace RadioExpansion.Core
 {
     public class Logger : IDisposable
     {

@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace GTAV_OnlineRadio.AsiLibrary.WaveStreams
+namespace RadioExpansion.Core.WaveStreams
 {
     public static class WaveStreamHelper
     {

@@ -10,7 +10,7 @@ using NAudio;
 using System.Xml.Linq;
 using System.Globalization;
 
-namespace GTAV_OnlineRadio.AsiLibrary.RadioPlayers
+namespace RadioExpansion.Core.RadioPlayers
 {
     public enum StreamingPlaybackState
     {

@@ -1,4 +1,5 @@
-﻿using GTAV_OnlineRadio.AsiLibrary.RadioPlayers;
+﻿using RadioExpansion.Core;
+using RadioExpansion.Core.RadioPlayers;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -6,14 +7,14 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace GTAV_OnlineRadio.AsiLibrary
+namespace RadioExpansion.AsiLibrary
 {
     public static class RadioLogoManager
     {
         private const float BORDER_WIDTH = 8;
         private const int FINAL_SIZE = 144;
         private const int ORIGINAL_SIZE = 128;
-        private const string TMP_DIR = "GTAV_OnlineRadio";
+        private const string TMP_DIR = "GTAV_RadioExpansion";
 
         private static readonly Color HudColor_Michael = Color.FromArgb(101, 180, 212); // blue
         private static readonly Color HudColor_Trevor = Color.FromArgb(255, 163, 87); // orange
@@ -100,7 +101,9 @@ namespace GTAV_OnlineRadio.AsiLibrary
                     else
                     {
                         Logger.Instance.Log($"Looking for logo '{logoPath}'... File not found.");
-                        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GTAV_OnlineRadio.AsiLibrary.Logo_UnknownRadio.jpg"))
+
+                        var scriptAssembly = typeof(RadioLogoManager).Assembly;
+                        using (var stream = scriptAssembly.GetManifestResourceStream($"{scriptAssembly.GetName().Name}.Logo_UnknownRadio.jpg"))
                         {
                             TransformImage(Image.FromStream(stream), GetTempLogoPath(radio.Name, color), color);
                         }

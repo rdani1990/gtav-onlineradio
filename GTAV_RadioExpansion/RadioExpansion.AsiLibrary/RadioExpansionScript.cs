@@ -8,13 +8,13 @@ using Control = GTA.Control;
 using Font = GTA.Font;
 using System.Diagnostics;
 using System.Collections.Generic;
-using GTAV_OnlineRadio.AsiLibrary.RadioPlayers;
+using RadioExpansion.Core.RadioPlayers;
 using System.Threading.Tasks;
+using RadioExpansion.Core;
 
-namespace GTAV_OnlineRadio.AsiLibrary
+namespace RadioExpansion.AsiLibrary
 {
-
-    public class OnlineRadioScript : Script
+    public class RadioExpansionScript : Script
     {
         private bool _isInVehicle;
         private bool _isPressingToggleRadioButton;
@@ -30,7 +30,7 @@ namespace GTAV_OnlineRadio.AsiLibrary
             }
         }
 
-        public OnlineRadioScript()
+        public RadioExpansionScript()
         {
             RadioTuner.Instance.RadioLoadingCompleted += OnRadioLoadingCompleted;
 

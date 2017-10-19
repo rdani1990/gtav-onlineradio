@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace GTAV_OnlineRadio.AsiLibrary
+namespace RadioExpansion.Core
 {
     public class MetaData
     {

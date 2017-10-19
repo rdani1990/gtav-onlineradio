@@ -1,7 +1,7 @@
-﻿using GTAV_OnlineRadio.AsiLibrary.RadioPlayers;
+﻿using RadioExpansion.Core.RadioPlayers;
 using System.Collections.Generic;
 
-namespace GTAV_OnlineRadio.AsiLibrary
+namespace RadioExpansion.AsiLibrary
 {
     /// <summary>
     /// Maintains the list of vehicles which has custom radio on.

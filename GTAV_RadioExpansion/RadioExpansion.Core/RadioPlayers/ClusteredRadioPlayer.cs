@@ -1,4 +1,4 @@
-﻿using GTAV_OnlineRadio.AsiLibrary.WaveStreams;
+﻿using RadioExpansion.Core.WaveStreams;
 using IWshRuntimeLibrary;
 using NAudio.Wave;
 using System;
@@ -10,7 +10,7 @@ using System.Threading;
 using System.Xml.Linq;
 using File = System.IO.File;
 
-namespace GTAV_OnlineRadio.AsiLibrary.RadioPlayers
+namespace RadioExpansion.Core.RadioPlayers
 {
     /// <summary>
     /// Same conception what San Andreas radio stations had: instead of having one big file, the adverts, intro and outro parts, and track bodies are in separated files.

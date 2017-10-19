@@ -1,11 +1,11 @@
-﻿using GTAV_OnlineRadio.AsiLibrary.WaveStreams;
+﻿using RadioExpansion.Core.WaveStreams;
 using NAudio.Wave;
 using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace GTAV_OnlineRadio.AsiLibrary.RadioPlayers
+namespace RadioExpansion.Core.RadioPlayers
 {
     public class LocalRadioPlayer : Radio
     {

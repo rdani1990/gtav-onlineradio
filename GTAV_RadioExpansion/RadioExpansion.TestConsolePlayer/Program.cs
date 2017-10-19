@@ -1,7 +1,7 @@
-﻿using GTAV_OnlineRadio.AsiLibrary;
+﻿using RadioExpansion.Core;
 using System;
 
-namespace GTAV_OnlineRadio.TestConsolePlayer
+namespace RadioExpansion.TestConsolePlayer
 {
     class Program
     {
@@ -81,7 +81,7 @@ namespace GTAV_OnlineRadio.TestConsolePlayer
         static void PrintCurrentRadio()
         {
             var station = RadioTuner.Instance.CurrentStation;
-            Console.WriteLine("Current radio: {0}", station);
+            Console.WriteLine($"Current radio: {station}".PadRight(Console.BufferWidth - 1));
             Console.WriteLine("Current track: {0}", station.CurrentTrackMetaData);
         }
 

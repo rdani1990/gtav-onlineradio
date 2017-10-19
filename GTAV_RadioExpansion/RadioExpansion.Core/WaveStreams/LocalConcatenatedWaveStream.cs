@@ -1,7 +1,7 @@
 ﻿using NAudio.Wave;
 using System;
 
-namespace GTAV_OnlineRadio.AsiLibrary.WaveStreams
+namespace RadioExpansion.Core.WaveStreams
 {
     /// <summary>
     /// Concatenates an intro, a mid, and an outro wave stream into one whole stream. It's necessary, since resampling can cause ticking at parts where the streams are switched

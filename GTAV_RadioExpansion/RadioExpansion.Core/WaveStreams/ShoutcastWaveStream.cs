@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace GTAV_OnlineRadio.AsiLibrary.WaveStreams
+namespace RadioExpansion.Core.WaveStreams
 {
     /// <summary>
     /// Wrapper for single local audio streams, which restarts at the end.

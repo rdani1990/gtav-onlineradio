@@ -1,7 +1,7 @@
 ﻿using NAudio.Wave;
 using System;
 
-namespace GTAV_OnlineRadio.AsiLibrary.WaveStreams
+namespace RadioExpansion.Core.WaveStreams
 {
     /// <summary>
     /// Wrapper for local audio streams, supports source stream changing.
