@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using RadioExpansion.Core.RadioPlayers;
 using System.Threading.Tasks;
 using RadioExpansion.Core;
+using RadioExpansion.Core.Logging;
 
 namespace RadioExpansion.AsiLibrary
 {
@@ -32,6 +33,7 @@ namespace RadioExpansion.AsiLibrary
 
         public RadioExpansionScript()
         {
+            Logger.SetLogger(new FileLogger());
             RadioTuner.Instance.RadioLoadingCompleted += OnRadioLoadingCompleted;
 
             Task.Run((Action)RadioTuner.Instance.LoadRadios);
@@ -53,7 +55,7 @@ namespace RadioExpansion.AsiLibrary
             }
             else
             {
-                Logger.Instance.Log("No radios were found. The script is shutting down...");
+                Logger.Log("No radios were found. The script is shutting down...");
             }
         }
 
@@ -164,8 +166,8 @@ namespace RadioExpansion.AsiLibrary
                     Function.Call(Hash.GET_SCREEN_RESOLUTION, new InputArgument[] { &screenWidth, &screenHeight });
                 }
 
-                //Logger.Instance.Log("{0}; {1}", screenWidth, screenHeight);
-                //Logger.Instance.Log("AR: {0}", Function.Call<float>(Hash._GET_SCREEN_ASPECT_RATIO, new InputArgument[] { false }));
+                //Logger.Log("{0}; {1}", screenWidth, screenHeight);
+                //Logger.Log("AR: {0}", Function.Call<float>(Hash._GET_SCREEN_ASPECT_RATIO, new InputArgument[] { false }));
 
                 var caption = new UIText(text, new Point(screenWidth / 2, 203), 0.5f, Color.White, Font.ChaletComprimeCologne, true, false, true);
                 UI.DrawTexture(GetRadioLogoTempPath(radio.Name), 0, -9999, 50, new Point(screenWidth / 2, 131), new PointF(0.5f, 0), new Size(108 / 4 * 3, 108 / 3 * 2), 0, Color.White, 1);
@@ -256,7 +258,7 @@ namespace RadioExpansion.AsiLibrary
         protected override void Dispose(bool wut)
         {
             RadioTuner.Instance.Dispose();
-            Logger.Instance.Dispose();
+            Logger.Close();
         }
 
     }

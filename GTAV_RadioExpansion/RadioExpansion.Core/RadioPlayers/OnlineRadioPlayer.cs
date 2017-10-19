@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Xml.Linq;
+using RadioExpansion.Core.Logging;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
@@ -54,7 +55,7 @@ namespace RadioExpansion.Core.RadioPlayers
                         {
                             if (IsPlaying && LOG_EVERY_PLAYED_TRACK)
                             {
-                                Logger.Instance.LogTrack(Name, meta); // log new track title if radio is on
+                                Logger.LogTrack(Name, meta); // log new track title if radio is on
                             }
                             CurrentTrackMetaData = meta;
                         }
@@ -64,7 +65,7 @@ namespace RadioExpansion.Core.RadioPlayers
             }
             catch (Exception ex)
             {
-                Logger.Instance.Log("error {0} {1}", _uri, ex);
+                Logger.Log("error {0} {1}", _uri, ex);
             }
             finally
             {

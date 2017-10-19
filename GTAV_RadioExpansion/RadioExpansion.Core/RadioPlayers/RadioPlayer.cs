@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using NAudio;
 using System.Xml.Linq;
 using System.Globalization;
+using System.Reflection;
+using System.Net.Configuration;
+using RadioExpansion.Core.Logging;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
@@ -128,7 +131,8 @@ namespace RadioExpansion.Core.RadioPlayers
 
         static Radio()
         {
-            SetVolumeMultiplier();
+            SetDefaultVolumeMultiplier();
+            EnableUnsafeHeaderParsing();
         }
 
         public Radio(string folder, XElement config, int metaSyncInterval)
@@ -228,7 +232,7 @@ namespace RadioExpansion.Core.RadioPlayers
 #pragma warning disable CS0162 // Unreachable code detected
             if (LOG_EVERY_PLAYED_TRACK)
             {
-                Logger.Instance.LogTrack(Name, CurrentTrackMetaData);
+                Logger.LogTrack(Name, CurrentTrackMetaData);
             }
 #pragma warning restore CS0162 // Unreachable code detected
         }
@@ -480,7 +484,7 @@ namespace RadioExpansion.Core.RadioPlayers
         /// <summary>
         /// Sets the default volume multiplier with the one set in GTA V
         /// </summary>
-        protected static void SetVolumeMultiplier()
+        protected static void SetDefaultVolumeMultiplier()
         {
             string profilesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Rockstar Games\GTA V\Profiles");
             if (!Directory.Exists(profilesDir)) // doesn't exist? Leave volume untouched
@@ -530,5 +534,38 @@ namespace RadioExpansion.Core.RadioPlayers
             return allowedExtensions.Contains(Path.GetExtension(path).ToLower());
         }
 
+        /// <summary>
+        /// Enable 'useUnsafeHeaderParsing', because .NET throws protocol violation exception for many shoutcast streams.
+        /// See http://o2platform.wordpress.com/2010/10/20/dealing-with-the-server-committed-a-protocol-violation-sectionresponsestatusline/
+        /// </summary>
+        private static bool EnableUnsafeHeaderParsing()
+        {
+            //Get the assembly that contains the internal class
+            Assembly assembly = Assembly.GetAssembly(typeof(SettingsSection));
+            if (assembly != null)
+            {
+                //Use the assembly in order to get the internal type for the internal class
+                Type settingsSectionType = assembly.GetType("System.Net.Configuration.SettingsSectionInternal");
+                if (settingsSectionType != null)
+                {
+                    //Use the internal static property to get an instance of the internal settings class.
+                    //If the static instance isn't created already invoking the property will create it for us.
+                    object anInstance = settingsSectionType.InvokeMember("Section",
+                    BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.NonPublic, null, null, new object[] { });
+                    if (anInstance != null)
+                    {
+                        //Locate the private bool field that tells the framework if unsafe header parsing is allowed
+                        FieldInfo aUseUnsafeHeaderParsing = settingsSectionType.GetField("useUnsafeHeaderParsing", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (aUseUnsafeHeaderParsing != null)
+                        {
+                            aUseUnsafeHeaderParsing.SetValue(anInstance, true);
+                            return true;
+                        }
+
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

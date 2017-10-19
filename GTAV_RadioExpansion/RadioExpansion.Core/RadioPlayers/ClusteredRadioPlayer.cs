@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 using File = System.IO.File;
+using RadioExpansion.Core.Logging;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
@@ -90,12 +91,12 @@ namespace RadioExpansion.Core.RadioPlayers
                     }
                     catch (FileNotFoundException ex)
                     {
-                        Logger.Instance.Log(ex.Message);
+                        Logger.Log(ex.Message);
                     }
                 }
                 else
                 {
-                    Logger.Instance.Log($"Skipping file '{path}'. File not found");
+                    Logger.Log($"Skipping file '{path}'. File not found");
                 }
             }
 
@@ -288,11 +289,11 @@ namespace RadioExpansion.Core.RadioPlayers
                         _musicTracks.Dequeue();
                     }
 
-                    Logger.Instance.Log("Failed to open track '{0}' for radio '{1}', error:\r\n{2}", nextTrackToOpen, Name, ex);
+                    Logger.Log("Failed to open track '{0}' for radio '{1}', error:\r\n{2}", nextTrackToOpen, Name, ex);
                 }
             }
 
-            Logger.Instance.Log($"Failed to find any track to open for radio '{Name}'");
+            Logger.Log($"Failed to find any track to open for radio '{Name}'");
             return null;
         }
 

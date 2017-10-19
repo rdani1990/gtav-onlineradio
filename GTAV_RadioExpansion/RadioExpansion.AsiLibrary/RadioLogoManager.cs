@@ -1,4 +1,5 @@
 ﻿using RadioExpansion.Core;
+using RadioExpansion.Core.Logging;
 using RadioExpansion.Core.RadioPlayers;
 using System;
 using System.Drawing;
@@ -100,7 +101,7 @@ namespace RadioExpansion.AsiLibrary
                     }
                     else
                     {
-                        Logger.Instance.Log($"Looking for logo '{logoPath}'... File not found.");
+                        Logger.Log($"Looking for logo '{logoPath}'... File not found.");
 
                         var scriptAssembly = typeof(RadioLogoManager).Assembly;
                         using (var stream = scriptAssembly.GetManifestResourceStream($"{scriptAssembly.GetName().Name}.Logo_UnknownRadio.jpg"))

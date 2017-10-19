@@ -1,4 +1,5 @@
 ﻿using RadioExpansion.Core;
+using RadioExpansion.Core.Logging;
 using System;
 
 namespace RadioExpansion.TestConsolePlayer
@@ -10,6 +11,9 @@ namespace RadioExpansion.TestConsolePlayer
             Console.CursorVisible = false;
 
             PrintUsage();
+
+            Logger.SetLogger(new ConsoleLogger());
+
             if (!LoadRadios())
             {
                 Console.ReadKey(true);

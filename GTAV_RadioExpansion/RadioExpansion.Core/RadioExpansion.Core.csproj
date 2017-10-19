@@ -83,12 +83,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logging\FileLogger.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="PlaylistReaders\M3uPlaylistReader.cs" />
+    <Compile Include="PlaylistReaders\PlsPlaylistReader.cs" />
+    <Compile Include="RadioConfigManager.cs" />
     <Compile Include="RadioPlayers\ClusteredRadioPlayer.cs" />
     <Compile Include="RadioPlayers\LocalRadioPlayer.cs" />
     <Compile Include="WaveStreams\LocalConcatenatedWaveStream.cs" />
     <Compile Include="WaveStreams\LocalClusteredWaveStream.cs" />
     <Compile Include="WaveStreams\LocalRepeatedWaveStream.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="MetaData.cs" />
     <Compile Include="MetaHelper.cs" />
     <Compile Include="RadioPlayers\OnlineRadioPlayer.cs" />
