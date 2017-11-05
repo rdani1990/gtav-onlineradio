@@ -18,18 +18,17 @@ namespace RadioExpansion.Core
         {
             // checking at the installation path of GTA V
             string folder = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Rockstar Games\Grand Theft Auto V", "InstallFolder", null);
-            bool exists = false;
 
-            if (!String.IsNullOrEmpty(folder))
+            if (String.IsNullOrEmpty(folder))
+            {
+                Logger.Log("GTA V folder not found.");
+            }
+            else if (Directory.Exists(folder))
             {
                 folder = Path.Combine(folder, RADIO_DIRECTORY);
-                exists = Directory.Exists(folder);
 
-                Logger.Log("Looking for folder '{0}'... Folder {1}.", folder, exists ? "found" : "not found");
-            }
+                Logger.Log("GTA V found. Using folder '{0}'.", folder);
 
-            if (exists)
-            {
                 return folder;
             }
 
@@ -162,7 +161,7 @@ namespace RadioExpansion.Core
                         string mp3File = audioFiles.First();
                         if (Path.GetExtension(mp3File).ToLower() == ".mp3")
                         {
-                            var radio = new LocalRadioPlayer(audioFiles.First(), config.ContainsKey(key) ? config[key] : null);
+                            var radio = new LocalRadio(audioFiles.First(), config.ContainsKey(key) ? config[key] : null);
                             radios.Add(radio);
                             Logger.Log($"Added single-track radio file '{radio.Name}'.");
                         }

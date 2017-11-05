@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
-    public class LocalRadioPlayer : Radio
+    public class LocalRadio : Radio
     {
         private DateTime _createdAt;
         private TimeSpan _initialPosition;
@@ -38,7 +38,7 @@ namespace RadioExpansion.Core.RadioPlayers
         //    }
         //}
 
-        public LocalRadioPlayer(string filePath, XElement config) : base(Path.GetDirectoryName(filePath), config, META_SYNC_INTERVAL)
+        public LocalRadio(string filePath, XElement config) : base(Path.GetDirectoryName(filePath), config, META_SYNC_INTERVAL)
         {
             _filePath = filePath;
             _createdAt = DateTime.Now;

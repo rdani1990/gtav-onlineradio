@@ -18,8 +18,6 @@ namespace RadioExpansion.Core.RadioPlayers
 
         protected override bool AlwaysSleepWhenBufferIsFull => false;
 
-        //public OnlineRadio(string name, Uri uri, float volume) : base(name, uri, volume, META_SYNC_INTERVAL) { }
-
         public OnlineRadio(string folder, Uri uri, XElement config) : base(folder, config, META_SYNC_INTERVAL)
         {
             _uri = uri;
@@ -65,7 +63,7 @@ namespace RadioExpansion.Core.RadioPlayers
             }
             catch (Exception ex)
             {
-                Logger.Log("error {0} {1}", _uri, ex);
+                Logger.Log("Failed to refresh metadata info for URL '{0}'. Error: {1}", _uri, ex);
             }
             finally
             {

@@ -93,9 +93,6 @@ namespace RadioExpansion.Core.RadioPlayers
                 }
             }
         }
-
-        //protected readonly Uri _uri;
-        //public Uri Uri => _uri;
         
         private MetaData _currentTrackMetaData;
         public MetaData CurrentTrackMetaData
@@ -119,9 +116,14 @@ namespace RadioExpansion.Core.RadioPlayers
             }
         }
 
-        public string Folder { get; private set; }
+        public string AbsoluteDirectoryPath { get; set; }
 
-        public string Name { get; private set; }
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The path of the directory, relative to the root directory (the 'radios' folder)
+        /// </summary>
+        public string RelativeDirectoryPath => Path.GetFileName(AbsoluteDirectoryPath);
 
         public bool IsPlaying => (playbackState == StreamingPlaybackState.Playing || playbackState == StreamingPlaybackState.Buffering);
 
@@ -135,15 +137,15 @@ namespace RadioExpansion.Core.RadioPlayers
             EnableUnsafeHeaderParsing();
         }
 
-        public Radio(string folder, XElement config, int metaSyncInterval)
+        public Radio(string absoluteDirectoryPath, XElement config, int metaSyncInterval)
         {
             if (!Single.TryParse(config?.Element("Volume")?.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out _volume))
             {
                 _volume = 1;
             }
 
-            Folder = folder;
-            Name = config?.Element("Name")?.Value ?? Path.GetFileName(folder);
+            AbsoluteDirectoryPath = absoluteDirectoryPath;
+            Name = config?.Element("Name")?.Value ?? Path.GetFileName(absoluteDirectoryPath);
 
             _playbackTimer = new Timer();
             _playbackTimer.Interval = 250;
@@ -160,28 +162,6 @@ namespace RadioExpansion.Core.RadioPlayers
 
             Task.Run((Action)RefreshMetaInfo);
         }
-
-        //public Radio(string name, Uri uri, float volume, int metaSyncInterval)
-        //{
-        //    _playbackTimer = new Timer();
-        //    _playbackTimer.Interval = 250;
-        //    _playbackTimer.Elapsed += PlaybackTimerElapsed;
-
-        //    _metaSyncTimer = new Timer();
-        //    _metaSyncTimer.Interval = metaSyncInterval;
-        //    _metaSyncTimer.Elapsed += MetaSyncTimer_Elapsed;
-        //    _metaSyncTimer.Enabled = true;
-
-        //    _stopWatch = new Stopwatch();
-
-        //    _volume = volume;
-        //    _uri = uri;
-        //    _restartPlayingInSuspendedStateIfNotified = true;
-
-        //    Name = name;
-
-        //    Task.Run((Action)RefreshMetaInfo);
-        //}
 
         protected void RefreshVolume()
         {

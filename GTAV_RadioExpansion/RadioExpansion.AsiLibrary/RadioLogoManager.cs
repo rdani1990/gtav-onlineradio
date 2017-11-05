@@ -94,7 +94,7 @@ namespace RadioExpansion.AsiLibrary
             {
                 foreach (var color in colors)
                 {
-                    string logoPath = Path.Combine(radio.Folder, "logo.jpg");
+                    string logoPath = Path.Combine(radio.AbsoluteDirectoryPath, "logo.jpg");
                     if (File.Exists(logoPath))
                     {
                         TransformImage(Image.FromFile(logoPath), GetTempLogoPath(radio.Name, color), color);
