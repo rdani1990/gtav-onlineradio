@@ -94,7 +94,7 @@ namespace RadioExpansion.TestConsolePlayer
             Console.Write("Waiting for radios to be loaded... ");
             RadioTuner.Instance.LoadRadios();
 
-            bool hasRadios = RadioTuner.Instance.HasRadios;
+            bool hasRadios = (RadioTuner.Instance.Radios.Length > 0);
             if (hasRadios)
             {
 

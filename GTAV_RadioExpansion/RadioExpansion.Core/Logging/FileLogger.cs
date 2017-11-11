@@ -15,9 +15,9 @@ namespace RadioExpansion.Core.Logging
             string radioFolder = RadioConfigManager.GetRadioFolder();
             Directory.CreateDirectory(radioFolder);
 
-            _logger = new StreamWriter(Path.Combine(radioFolder, "GTAV_OnlineRadio.log"), true);
+            _logger = new StreamWriter(Path.Combine(radioFolder, "GTAV_RadioExpansion.log"), true);
             _logger.AutoFlush = true;
-            _trackLogger = new StreamWriter(Path.Combine(radioFolder, "GTAV_OnlineRadio_Tracks.log"), true);
+            _trackLogger = new StreamWriter(Path.Combine(radioFolder, "GTAV_RadioExpansion_Tracks.log"), true);
             _trackLogger.AutoFlush = true;
         }
 

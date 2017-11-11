@@ -18,7 +18,7 @@ namespace RadioExpansion.Core
 
         public bool IsRadioOn => _radios.Any(r => r.IsPlaying);
 
-        public bool HasRadios => (_radios.Length > 0);
+        public Radio[] Radios => _radios;
 
         public Radio CurrentStation
         {

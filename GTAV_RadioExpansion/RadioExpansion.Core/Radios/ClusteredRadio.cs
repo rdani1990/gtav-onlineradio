@@ -27,6 +27,7 @@ namespace RadioExpansion.Core.RadioPlayers
         private object _moveToNextTrackLock = new object();
         
         private const int META_SYNC_INTERVAL = 3000;
+        private const string AdvertsFolder = "[adverts]";
 
         private static Random _rnd = new Random();
 
@@ -35,34 +36,7 @@ namespace RadioExpansion.Core.RadioPlayers
         public int TrackCount => _musicTracks.Count;
 
         public int AdvertCount => _adverts.Count;
-
-        //public ClusteredRadio(string name, Uri uri, float volume, XElement trackList, XElement adverts) : base(name, uri, volume, META_SYNC_INTERVAL)
-        //{
-        //    _musicTracks = new Queue<ClusteredTrack>();
-        //    _pathAdverts = new Queue<string>();
-        //    _audioStream = new LocalClusteredWaveStream();
-        //    _audioStream.EndOfStreamReached += AudioStream_EndOfStreamReached;
-
-        //    var musicTracks = trackList.Elements("Track").Select(t => new ClusteredTrack(t)).ToList();
-        //    var pathAdverts = adverts.Elements("Advert").Select(t => t.Value).ToList();
-
-        //    while (musicTracks.Count > 0)
-        //    {
-        //        int trackIndex = _rnd.Next(musicTracks.Count);
-        //        _musicTracks.Enqueue(musicTracks[trackIndex]);
-        //        musicTracks.RemoveAt(trackIndex);
-        //    }
-
-        //    while (pathAdverts.Count > 0)
-        //    {
-        //        int advertIndex = _rnd.Next(pathAdverts.Count);
-        //        _pathAdverts.Enqueue(pathAdverts[advertIndex]);
-        //        pathAdverts.RemoveAt(advertIndex);
-        //    }
-
-        //    _metaLoaded = true;
-        //}
-
+        
         public ClusteredRadio(string folder, IEnumerable<string> files, XElement config) : base(folder, config, META_SYNC_INTERVAL)
         {
             _musicTracks = new Queue<ClusteredTrack>();
@@ -100,13 +74,13 @@ namespace RadioExpansion.Core.RadioPlayers
                 }
             }
 
-            if (Directory.Exists(Path.Combine(folder, "[adverts]"))) // custom adverts for the radio station
+            if (Directory.Exists(Path.Combine(folder, AdvertsFolder))) // custom adverts for the radio station
             {
-                adverts.AddRange(Directory.GetFiles(Path.Combine(folder, "[adverts]")));
+                adverts.AddRange(Directory.GetFiles(Path.Combine(folder, AdvertsFolder)));
             }
-            if (Directory.Exists(Path.Combine(folder, "..\\[adverts]"))) // generic adverts
+            if (Directory.Exists(Path.Combine(folder, $"..\\{AdvertsFolder}"))) // generic adverts
             {
-                adverts.AddRange(Directory.GetFiles(Path.Combine(folder, "..\\[adverts]")));
+                adverts.AddRange(Directory.GetFiles(Path.Combine(folder, $"..\\{AdvertsFolder}")));
             }
 
             adverts = adverts.Where(p => HasAllowedAudioExtension(p)).ToList();
