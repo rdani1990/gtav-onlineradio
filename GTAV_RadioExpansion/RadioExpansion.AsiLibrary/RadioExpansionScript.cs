@@ -41,7 +41,9 @@ namespace RadioExpansion.AsiLibrary
 
         private void OnRadioLoadingCompleted(object sender, EventArgs e)
         {
-            if (RadioTuner.Instance.HasRadios) // only do anything if there's any radio available...
+            var radios = RadioTuner.Instance.Radios;
+
+            if (radios.Length > 0) // only do anything if there's any radio available...
             {
                 Tick += OnTick;
                 Interval = 100;
@@ -52,6 +54,8 @@ namespace RadioExpansion.AsiLibrary
                 _vehicleRadioManager = new VehicleRadioManager();
 
                 Radio.PauseIfNotNofified = true;
+
+                RadioLogoManager.CreateTempLogos(radios);
             }
             else
             {

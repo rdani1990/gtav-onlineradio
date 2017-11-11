@@ -1,11 +1,9 @@
-﻿using RadioExpansion.Core;
-using RadioExpansion.Core.Logging;
+﻿using RadioExpansion.Core.Logging;
 using RadioExpansion.Core.RadioPlayers;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Reflection;
 using System.Text;
 
 namespace RadioExpansion.AsiLibrary
@@ -92,23 +90,27 @@ namespace RadioExpansion.AsiLibrary
 
             foreach (var radio in radios)
             {
+                Image logoImage;
+                string logoPath = Path.Combine(radio.AbsoluteDirectoryPath, "logo.jpg");
+
+                if (File.Exists(logoPath))
+                {
+                    logoImage = Image.FromFile(logoPath);
+                }
+                else
+                {
+                    Logger.Log($"Looking for logo '{logoPath}'... File not found.");
+
+                    var scriptAssembly = typeof(RadioLogoManager).Assembly;
+                    using (var stream = scriptAssembly.GetManifestResourceStream($"{scriptAssembly.GetName().Name}.Logo_UnknownRadio.jpg"))
+                    {
+                        logoImage = Image.FromStream(stream);
+                    }
+                }
+
                 foreach (var color in colors)
                 {
-                    string logoPath = Path.Combine(radio.AbsoluteDirectoryPath, "logo.jpg");
-                    if (File.Exists(logoPath))
-                    {
-                        TransformImage(Image.FromFile(logoPath), GetTempLogoPath(radio.Name, color), color);
-                    }
-                    else
-                    {
-                        Logger.Log($"Looking for logo '{logoPath}'... File not found.");
-
-                        var scriptAssembly = typeof(RadioLogoManager).Assembly;
-                        using (var stream = scriptAssembly.GetManifestResourceStream($"{scriptAssembly.GetName().Name}.Logo_UnknownRadio.jpg"))
-                        {
-                            TransformImage(Image.FromStream(stream), GetTempLogoPath(radio.Name, color), color);
-                        }
-                    }
+                    TransformImage(logoImage, GetTempLogoPath(radio.Name, color), color);
                 }
             }
         }
