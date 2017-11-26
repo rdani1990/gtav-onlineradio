@@ -1,5 +1,6 @@
 ﻿using RadioExpansion.Core;
 using RadioExpansion.Core.Logging;
+using RadioExpansion.Core.RadioPlayers;
 using System;
 
 namespace RadioExpansion.TestConsolePlayer
@@ -14,23 +15,26 @@ namespace RadioExpansion.TestConsolePlayer
 
             Logger.SetLogger(new ConsoleLogger());
 
-            if (!LoadRadios())
+            var radios = LoadRadios();
+            if (radios.Length == 0)
             {
                 Console.ReadKey(true);
                 return;
             }
 
-            RadioTuner.Instance.Play();
-            var newStation = RadioTuner.Instance.CurrentStation;
+            var radioTuner = new RadioTuner(radios);
 
-            PrintCurrentRadio();
+            radioTuner.Play();
+            var newStation = radioTuner.CurrentStation;
+
+            PrintCurrentRadio(radioTuner);
 
             while (true)
             {
                 switch (Console.ReadKey(true).Key)
                 {
                     case ConsoleKey.LeftArrow:
-                        newStation = RadioTuner.Instance.MoveToPreviousStation();
+                        newStation = radioTuner.MoveToPreviousStation();
 
                         Console.CursorLeft = 0;
                         Console.Write(String.Format("Previous station: {0}", newStation).PadRight(Console.BufferWidth));
@@ -38,7 +42,7 @@ namespace RadioExpansion.TestConsolePlayer
                         break;
 
                     case ConsoleKey.RightArrow:
-                        newStation = RadioTuner.Instance.MoveToNextStation();
+                        newStation = radioTuner.MoveToNextStation();
 
                         Console.CursorLeft = 0;
                         Console.Write(String.Format("Next station: {0}", newStation).PadRight(Console.BufferWidth));
@@ -46,22 +50,22 @@ namespace RadioExpansion.TestConsolePlayer
                         break;
 
                     case ConsoleKey.Enter:
-                        RadioTuner.Instance.ActivateNextStation();
-                        RadioTuner.Instance.LogCurrentTrack();
+                        radioTuner.ActivateNextStation();
+                        radioTuner.LogCurrentTrack();
 
-                        PrintCurrentRadio();
+                        PrintCurrentRadio(radioTuner);
                         break;
 
                     case ConsoleKey.P:
-                        if (RadioTuner.Instance.IsRadioOn)
+                        if (radioTuner.IsRadioOn)
                         {
                             Console.WriteLine("Radio paused.");
-                            RadioTuner.Instance.PauseCurrent();
+                            radioTuner.PauseCurrent();
                         }
                         else
                         {
                             Console.WriteLine("Radio restarted.");
-                            RadioTuner.Instance.Play();
+                            radioTuner.Play();
                         }
                         break;
 
@@ -82,20 +86,20 @@ namespace RadioExpansion.TestConsolePlayer
             Console.WriteLine(Environment.NewLine);
         }
 
-        static void PrintCurrentRadio()
+        static void PrintCurrentRadio(RadioTuner radioTuner)
         {
-            var station = RadioTuner.Instance.CurrentStation;
+            var station = radioTuner.CurrentStation;
             Console.WriteLine($"Current radio: {station}".PadRight(Console.BufferWidth - 1));
             Console.WriteLine("Current track: {0}", station.CurrentTrackMetaData);
         }
 
-        static bool LoadRadios()
+        static Radio[] LoadRadios()
         {
             Console.Write("Waiting for radios to be loaded... ");
-            RadioTuner.Instance.LoadRadios();
 
-            bool hasRadios = (RadioTuner.Instance.Radios.Length > 0);
-            if (hasRadios)
+            var radios = RadioConfigManager.LoadRadios();
+
+            if (radios.Length > 0)
             {
 
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -109,7 +113,7 @@ namespace RadioExpansion.TestConsolePlayer
 
             Console.ResetColor();
 
-            return hasRadios;
+            return radios;
         }
     }
 }

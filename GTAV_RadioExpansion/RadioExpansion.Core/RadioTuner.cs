@@ -14,8 +14,6 @@ namespace RadioExpansion.Core
         private int? _activeStationIndex; // the currently selected station
         private int? _nextStationIndex; // the next station which gonna start, if activated
 
-        public event EventHandler RadioLoadingCompleted;
-
         public bool IsRadioOn => _radios.Any(r => r.IsPlaying);
 
         public Radio[] Radios => _radios;
@@ -44,23 +42,9 @@ namespace RadioExpansion.Core
             }
         }
 
-        private static RadioTuner _instance;
-
-        public static RadioTuner Instance
+        public RadioTuner(Radio[] radios)
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new RadioTuner();
-                }
-                return _instance;
-            }
-        }
-
-        private RadioTuner()
-        {
-            _radios = new Radio[0];
+            _radios = radios ?? new Radio[0];
         }
 
         public void Play(int? stationIndex = null)
@@ -93,8 +77,6 @@ namespace RadioExpansion.Core
             {
                 radio.Dispose();
             }
-
-            _instance = null;
         }
 
         public Radio MoveToNextStation()
@@ -143,14 +125,7 @@ namespace RadioExpansion.Core
                 _nextStationIndex = null;
             }
         }
-
-        public void LoadRadios()
-        {
-            _radios = new RadioConfigManager().LoadRadios();
-
-            RadioLoadingCompleted?.Invoke(this, EventArgs.Empty);
-        }
-
+        
         public void LogCurrentTrack()
         {
             if (CurrentStation != null)

@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace RadioExpansion.Core
 {
-    public class RadioConfigManager
+    public static class RadioConfigManager
     {
         private const string RADIO_DIRECTORY = "radios";
 
@@ -90,7 +90,7 @@ namespace RadioExpansion.Core
             return config;
         }
 
-        private List<string> GetSortedRadioDirectories(string rootFolder, Dictionary<string, XElement> config)
+        private static List<string> GetSortedRadioDirectories(string rootFolder, Dictionary<string, XElement> config)
         {
             var configKeys = config.Keys.ToList(); // config keys are "path" attribute of the Radio xml nodes
             var dirs = Directory.GetDirectories(rootFolder).ToList();
@@ -113,7 +113,7 @@ namespace RadioExpansion.Core
             return dirs;
         }
 
-        public Radio[] LoadRadios()
+        public static Radio[] LoadRadios()
         {
             string rootFolder = GetRadioFolder();
 

@@ -21,6 +21,7 @@ namespace RadioExpansion.AsiLibrary
         private bool _isPressingToggleRadioButton;
         private int _lastKnownVehicleHandle;
         private VehicleRadioManager _vehicleRadioManager; // the known turned on radios for vehicles
+        private RadioTuner _radioTuner;
 
         public bool IsOnlineRadioPlayingAllowed
         {
@@ -34,28 +35,29 @@ namespace RadioExpansion.AsiLibrary
         public RadioExpansionScript()
         {
             Logger.SetLogger(new FileLogger());
-            RadioTuner.Instance.RadioLoadingCompleted += OnRadioLoadingCompleted;
 
-            Task.Run((Action)RadioTuner.Instance.LoadRadios);
+            Task.Run(() =>
+            {
+                Initialize(RadioConfigManager.LoadRadios());
+            });
         }
 
-        private void OnRadioLoadingCompleted(object sender, EventArgs e)
+        private void Initialize(Radio[] radios)
         {
-            var radios = RadioTuner.Instance.Radios;
-
             if (radios.Length > 0) // only do anything if there's any radio available...
             {
+                RadioLogoManager.CreateTempLogos(radios);
+
+                _radioTuner = new RadioTuner(radios);
+                _vehicleRadioManager = new VehicleRadioManager();
+
                 Tick += OnTick;
                 Interval = 100;
 
                 KeyDown += OnKeyDown;
                 KeyUp += OnKeyUp;
 
-                _vehicleRadioManager = new VehicleRadioManager();
-
                 Radio.PauseIfNotNofified = true;
-
-                RadioLogoManager.CreateTempLogos(radios);
             }
             else
             {
@@ -81,30 +83,28 @@ namespace RadioExpansion.AsiLibrary
                 }
             }
 
-            var radioTuner = RadioTuner.Instance;
-
-            if (radioTuner.CurrentStation != null)
+            if (_radioTuner.CurrentStation != null)
             {
                 bool isOnlineRadioPlayingAllowed = IsOnlineRadioPlayingAllowed;
-                radioTuner.CurrentStation.KeepAlive();
+                _radioTuner.CurrentStation.KeepAlive();
 
                 Audio.SetAudioFlag(AudioFlag.WantedMusicDisabled, isOnlineRadioPlayingAllowed);
                 Audio.SetAudioFlag(AudioFlag.DisableFlightMusic, isOnlineRadioPlayingAllowed);
 
                 if (isOnlineRadioPlayingAllowed)
                 {
-                    radioTuner.CurrentStation.HasOngoingConversation = (Function.Call<bool>(Hash.IS_SCRIPTED_CONVERSATION_ONGOING) || Function.Call<bool>(Hash.IS_MOBILE_PHONE_CALL_ONGOING));
+                    _radioTuner.CurrentStation.HasOngoingConversation = (Function.Call<bool>(Hash.IS_SCRIPTED_CONVERSATION_ONGOING) || Function.Call<bool>(Hash.IS_MOBILE_PHONE_CALL_ONGOING));
                     HandleRadioChangeKeyDowns(false);
                 }
                 else
                 {
                     if (_isInVehicle)
                     {
-                        radioTuner.PauseCurrent(); // probably player just hop out from the vehicle for a sec, we suspend it to start quickier if he hops in 
+                        _radioTuner.PauseCurrent(); // probably player just hop out from the vehicle for a sec, we suspend it to start quickier if he hops in 
                     }
                     else
                     {
-                        radioTuner.StopCurrent();
+                        _radioTuner.StopCurrent();
                     }
                 }
             }
@@ -122,7 +122,7 @@ namespace RadioExpansion.AsiLibrary
         {
             if (e.KeyCode == Keys.Escape)
             {
-                RadioTuner.Instance.CurrentStation?.Suspend(true);
+                _radioTuner.CurrentStation?.Suspend(true);
             }
             else if (e.KeyCode == Keys.Z && !_isPressingToggleRadioButton && IsOnlineRadioPlayingAllowed)
             {
@@ -132,11 +132,11 @@ namespace RadioExpansion.AsiLibrary
             }
             else if (e.KeyCode == Keys.BrowserFavorites)
             {
-                string currentTrack = RadioTuner.Instance.CurrentStation?.CurrentTrackMetaData?.ToString();
+                string currentTrack = _radioTuner.CurrentStation?.CurrentTrackMetaData?.ToString();
 
                 if (!String.IsNullOrEmpty(currentTrack))
                 {
-                    RadioTuner.Instance.LogCurrentTrack();
+                    _radioTuner.LogCurrentTrack();
                     UI.Notify($"Track '{currentTrack}' logged.");
                 }
                 else
@@ -192,17 +192,17 @@ namespace RadioExpansion.AsiLibrary
 
         private void ToggleRadioStreamer()
         {
-            if (RadioTuner.Instance.IsRadioOn) // if online radio is on
+            if (_radioTuner.IsRadioOn) // if online radio is on
             {
                 var vehicle = Game.Player.Character.CurrentVehicle;
                 vehicle.IsRadioEnabled = true;
                 _vehicleRadioManager.RemoveVehicleCustomRadio(vehicle.Handle);
-                RadioTuner.Instance.StopCurrent();
+                _radioTuner.StopCurrent();
             }
             else
             {
                 Game.Player.Character.CurrentVehicle.IsRadioEnabled = false;
-                RadioTuner.Instance.Play(0);
+                _radioTuner.Play(0);
 
                 HandleRadioChangeKeyDowns(true);
             }
@@ -213,7 +213,7 @@ namespace RadioExpansion.AsiLibrary
             if (forced || (_vehicleRadioManager.IsVehicleCustomRadioOn(_lastKnownVehicleHandle) && (Game.IsControlPressed(2, Control.VehicleNextRadio) || Game.IsControlPressed(2, Control.VehiclePrevRadio))))
             {
                 bool radioChangeHandled = false;
-                var nextRadio = RadioTuner.Instance.CurrentStation;
+                var nextRadio = _radioTuner.CurrentStation;
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
@@ -233,12 +233,12 @@ namespace RadioExpansion.AsiLibrary
 
                     if (!radioChangeHandled && isPreviousStationKeyDown)
                     {
-                        nextRadio = RadioTuner.Instance.MoveToPreviousStation();
+                        nextRadio = _radioTuner.MoveToPreviousStation();
                         handleRadioChange();
                     }
                     else if (!radioChangeHandled && isNextStationKeyDown)
                     {
-                        nextRadio = RadioTuner.Instance.MoveToNextStation();
+                        nextRadio = _radioTuner.MoveToNextStation();
                         handleRadioChange();
                     }
                     else if (!isPreviousStationKeyDown && !isNextStationKeyDown)
@@ -246,22 +246,22 @@ namespace RadioExpansion.AsiLibrary
                         radioChangeHandled = false;
                     }
 
-                    RadioTuner.Instance.KeepStreamAlive(); // don't forget about keeping alive the current radio!
+                    _radioTuner.KeepStreamAlive(); // don't forget about keeping alive the current radio!
 
                     DrawRadioLogoWithInfo(nextRadio);
                     Wait(0);
                 }
 
                 Game.Player.Character.CurrentVehicle.IsRadioEnabled = false; // turn off the radio in the car
-                RadioTuner.Instance.ActivateNextStation(); // change to the next station
+                _radioTuner.ActivateNextStation(); // change to the next station
 
-                _vehicleRadioManager.SetVehicleCustomRadio(Game.Player.Character.CurrentVehicle.Handle, RadioTuner.Instance.CurrentStation);
+                _vehicleRadioManager.SetVehicleCustomRadio(Game.Player.Character.CurrentVehicle.Handle, _radioTuner.CurrentStation);
             }
         }
 
         protected override void Dispose(bool wut)
         {
-            RadioTuner.Instance.Dispose();
+            _radioTuner.Dispose();
             Logger.Close();
         }
 
