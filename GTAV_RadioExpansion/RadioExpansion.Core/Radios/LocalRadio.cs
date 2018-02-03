@@ -3,62 +3,61 @@ using NAudio.Wave;
 using System;
 using System.IO;
 using System.Linq;
-using System.Xml.Linq;
+using System.Xml.Serialization;
+using RadioExpansion.Core.Logging;
+using RadioExpansion.Core.Serialization;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
+    [XmlWhitelistSerialization]
     public class LocalRadio : Radio
     {
         private DateTime _createdAt;
         private TimeSpan _initialPosition;
         private double _totalTimeInSeconds;
         private Mp3FileReader _mp3Stream;
-        private LocalStreamMetaData[] _metaData;
-
-        private static Random _rndStreamStart = new Random();
-        
-        private const int META_SYNC_INTERVAL = 3000;
-
         private string _filePath;
 
-        //public LocalRadioPlayer(string name, Uri uri, float volume, XElement metaData) : base(name, uri, volume, META_SYNC_INTERVAL)
-        //{
-        //    _createdAt = DateTime.Now;
-            
-        //    using (var mp3Stream = new Mp3FileReader(_uri.LocalPath))
-        //    {
-        //        _totalTimeInSeconds = mp3Stream.TotalTime.TotalSeconds;
-        //    }
+        private static Random _rndStreamStart = new Random();
 
-        //    _initialPosition = TimeSpan.FromSeconds(_rndStreamStart.NextDouble() * _totalTimeInSeconds); // don't start the audio always from beginning!
+        protected override int MetaDataSyncInterval => 3000;
 
-        //    if (metaData != null)
-        //    {
-        //        _metaData = metaData.Elements().Select(mi => new LocalStreamMetaData(mi)).ToArray();
-        //    }
-        //}
+        [XmlWhitelisted, XmlArrayItem("Track")]
+        public LocalStreamMetaData[] TrackList { get; set; }
 
-        public LocalRadio(string filePath, XElement config) : base(Path.GetDirectoryName(filePath), config, META_SYNC_INTERVAL)
+        protected override void OnPathChanged()
         {
-            _filePath = filePath;
-            _createdAt = DateTime.Now;
+            var mp3Files = Directory.GetFiles(AbsoluteDirectoryPath).Where(f => Path.GetExtension(f).ToLower() == ".mp3").ToArray();
 
-            using (var mp3Stream = new Mp3FileReader(_filePath))
+            if (mp3Files.Length > 0)
             {
-                _totalTimeInSeconds = mp3Stream.TotalTime.TotalSeconds;
+                _filePath = mp3Files[0];
+
+                if (mp3Files.Length > 1)
+                {
+                    Logger.Log($"{mp3Files.Length} MP3 files were found in local radio folder '{RelativeDirectoryPath}'. Only one file is allowed! Took '{_filePath}', ignored the rest.");
+                }
+                _createdAt = DateTime.Now;
+
+                using (var mp3Stream = new Mp3FileReader(_filePath))
+                {
+                    _totalTimeInSeconds = mp3Stream.TotalTime.TotalSeconds;
+                }
+
+                _initialPosition = TimeSpan.FromSeconds(_rndStreamStart.NextDouble() * _totalTimeInSeconds); // don't start the audio always from beginning!
             }
-
-            _initialPosition = TimeSpan.FromSeconds(_rndStreamStart.NextDouble() * _totalTimeInSeconds); // don't start the audio always from beginning!
-
-            _metaData = config?.Element("TrackList").Elements().Select(mi => new LocalStreamMetaData(mi)).ToArray();
+            else
+            {
+                Logger.Log($"No MP3 files were found in local radio folder '{RelativeDirectoryPath}'");
+            }
         }
 
         public override void RefreshMetaInfo()
         {
-            if (_metaData != null)
+            if (TrackList != null)
             {
                 var currentPosition = TimeSpan.FromSeconds(CalculatePosition());
-                CurrentTrackMetaData = _metaData.FirstOrDefault(m => m.Start <= currentPosition && currentPosition <= m.End);
+                CurrentTrackMetaData = TrackList.FirstOrDefault(m => m.Start <= currentPosition && currentPosition <= m.End);
             }
         }
 

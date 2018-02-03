@@ -22,13 +22,16 @@ namespace RadioExpansion.AsiLibrary
         private int _lastKnownVehicleHandle;
         private VehicleRadioManager _vehicleRadioManager; // the known turned on radios for vehicles
         private RadioTuner _radioTuner;
+        private Random _random;
 
-        public bool IsOnlineRadioPlayingAllowed
+        private const int IngameRadioCount = 20;
+
+        public bool IsCustomRadioPlayingAllowed
         {
             get
             {
                 var player = Game.Player;
-                return player.Character.IsInVehicle() && player.CanControlCharacter && !player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, new InputArgument[] { player.Handle, true });
+                return player.Character.IsInVehicle() && player.CanControlCharacter && !player.IsDead && !Function.Call<bool>(Hash.IS_PLAYER_BEING_ARRESTED, new InputArgument[] { player.Handle, true }) && Function.Call<bool>(Hash.IS_GAME_IN_CONTROL_OF_MUSIC);
             }
         }
 
@@ -36,15 +39,17 @@ namespace RadioExpansion.AsiLibrary
         {
             Logger.SetLogger(new FileLogger());
 
+            _random = new Random();
+
             Task.Run(() =>
             {
-                Initialize(RadioConfigManager.LoadRadios());
+                Initialize(RadioConfigManager.LoadConfig()?.Radios);
             });
         }
 
         private void Initialize(Radio[] radios)
         {
-            if (radios.Length > 0) // only do anything if there's any radio available...
+            if (radios?.Length > 0) // only do anything if there's any radio available...
             {
                 RadioLogoManager.CreateTempLogos(radios);
 
@@ -65,34 +70,80 @@ namespace RadioExpansion.AsiLibrary
             }
         }
 
-        private void OnTick(object sender, EventArgs e)
+        /// <summary>
+        /// Give a chance to turn on the custom radio if player is about to enter in a new vehicle.
+        /// </summary>
+        private void HandleIfPlayerIsTryingToEnterInVehicle(Ped player)
         {
-            var player = Game.Player.Character;
+            var newVehicle = player.GetVehicleIsTryingToEnter();
+
+            if (newVehicle != null && // player is about to enter in a vehicle
+                !_vehicleRadioManager.HasVehicleRadioInfo(newVehicle.Handle) &&
+                !Function.Call<bool>(Hash._IS_VEHICLE_RADIO_LOUD, newVehicle) && // that'd be weird...
+                !Function.Call<bool>(Hash.AUDIO_IS_SCRIPTED_MUSIC_PLAYING))
+            {
+                var allRadio = _radioTuner.Radios;
+                int newStationIndex = _random.Next(allRadio.Length + IngameRadioCount);
+                if (newStationIndex < allRadio.Length)
+                {
+                    newVehicle.IsRadioEnabled = false;
+                    _vehicleRadioManager.RegisterVehicleWithRadio(newVehicle.Handle, allRadio[newStationIndex]);
+                    _radioTuner.CurrentStation = allRadio[newStationIndex];
+                }
+                else
+                {
+                    _vehicleRadioManager.RegisterVehicleWithRadio(newVehicle.Handle, null); // register with turned off radio, so it won't try to generate a radio for it every time the user tries to enter
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle case if player entered in a vehicle, or exited from one.
+        /// </summary>
+        private void HandleIfPlayerVehicleStateChanged(Ped player)
+        {
             if (_isInVehicle != player.IsInVehicle()) // player state within car has changed against its last known value
             {
-                _isInVehicle = player.IsInVehicle();
+                _isInVehicle = !_isInVehicle; // flip the state
 
                 if (_isInVehicle)
                 {
                     _lastKnownVehicleHandle = player.CurrentVehicle.Handle;
                     var customRadio = _vehicleRadioManager.GetVehicleCustomRadio(_lastKnownVehicleHandle);
-                    if (customRadio != null) // if the online radio was turned on for this vehicle previously, then start the radio
+                    if (customRadio != null) // if the custom radio was turned on for this vehicle previously, then start the radio
                     {
                         customRadio.Play();
                     }
+                    else
+                    {
+                        _vehicleRadioManager.RegisterVehicleWithRadio(_lastKnownVehicleHandle, null); // still register it with an empty radio, so next time if player is approaching this vehicle, it won't generate a random custom radio for it
+                    }
                 }
             }
+        }
 
+        /// <summary>
+        /// Does all the necessary actions if there is a station on.
+        /// </summary>
+        private void HandleIfStationIsOn()
+        {
             if (_radioTuner.CurrentStation != null)
             {
-                bool isOnlineRadioPlayingAllowed = IsOnlineRadioPlayingAllowed;
-                _radioTuner.CurrentStation.KeepAlive();
+                bool isCustomRadioPlayingAllowed = IsCustomRadioPlayingAllowed;
 
-                Audio.SetAudioFlag(AudioFlag.WantedMusicDisabled, isOnlineRadioPlayingAllowed);
-                Audio.SetAudioFlag(AudioFlag.DisableFlightMusic, isOnlineRadioPlayingAllowed);
+                Audio.SetAudioFlag(AudioFlag.WantedMusicDisabled, isCustomRadioPlayingAllowed);
+                Audio.SetAudioFlag(AudioFlag.DisableFlightMusic, isCustomRadioPlayingAllowed);
 
-                if (isOnlineRadioPlayingAllowed)
+                if (isCustomRadioPlayingAllowed)
                 {
+                    if (Function.Call<bool>(Hash.AUDIO_IS_SCRIPTED_MUSIC_PLAYING))
+                    {
+                        Function.Call(Hash.TRIGGER_MUSIC_EVENT, "OJDA_STOP"); // stop script music: arms traffic (air)
+                        Function.Call(Hash.TRIGGER_MUSIC_EVENT, "OJDG_STOP"); // stop script music: arms traffic (ground)
+                        // TODO: all the other...
+                    }
+
+                    _radioTuner.CurrentStation.KeepAlive();
                     _radioTuner.CurrentStation.HasOngoingConversation = (Function.Call<bool>(Hash.IS_SCRIPTED_CONVERSATION_ONGOING) || Function.Call<bool>(Hash.IS_MOBILE_PHONE_CALL_ONGOING));
                     HandleRadioChangeKeyDowns(false);
                 }
@@ -110,6 +161,15 @@ namespace RadioExpansion.AsiLibrary
             }
         }
 
+        private void OnTick(object sender, EventArgs e)
+        {
+            var player = Game.Player.Character;
+
+            HandleIfPlayerIsTryingToEnterInVehicle(player);
+            HandleIfPlayerVehicleStateChanged(player);
+            HandleIfStationIsOn();
+        }
+
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Z)
@@ -124,7 +184,7 @@ namespace RadioExpansion.AsiLibrary
             {
                 _radioTuner.CurrentStation?.Suspend(true);
             }
-            else if (e.KeyCode == Keys.Z && !_isPressingToggleRadioButton && IsOnlineRadioPlayingAllowed)
+            else if (e.KeyCode == Keys.Z && !_isPressingToggleRadioButton && IsCustomRadioPlayingAllowed)
             {
                 _isPressingToggleRadioButton = true;
 
@@ -136,7 +196,7 @@ namespace RadioExpansion.AsiLibrary
 
                 if (!String.IsNullOrEmpty(currentTrack))
                 {
-                    _radioTuner.LogCurrentTrack();
+                    Logger.LogTrack(_radioTuner.CurrentStation.Name, _radioTuner.CurrentStation.CurrentTrackMetaData);
                     UI.Notify($"Track '{currentTrack}' logged.");
                 }
                 else
@@ -210,7 +270,7 @@ namespace RadioExpansion.AsiLibrary
 
         private void HandleRadioChangeKeyDowns(bool forced)
         {
-            if (forced || (_vehicleRadioManager.IsVehicleCustomRadioOn(_lastKnownVehicleHandle) && (Game.IsControlPressed(2, Control.VehicleNextRadio) || Game.IsControlPressed(2, Control.VehiclePrevRadio))))
+            if (forced || (_vehicleRadioManager.GetVehicleCustomRadio(_lastKnownVehicleHandle) != null && (Game.IsEnabledControlPressed(2, Control.VehicleNextRadio) || Game.IsEnabledControlPressed(2, Control.VehiclePrevRadio))))
             {
                 bool radioChangeHandled = false;
                 var nextRadio = _radioTuner.CurrentStation;
@@ -228,8 +288,8 @@ namespace RadioExpansion.AsiLibrary
                 // within 1 sec, player can change the current online radio station, and until that, infos are shown
                 while (stopWatch.ElapsedMilliseconds < 1000)
                 {
-                    bool isNextStationKeyDown = Game.IsControlPressed(2, Control.VehicleNextRadio);
-                    bool isPreviousStationKeyDown = Game.IsControlPressed(2, Control.VehiclePrevRadio);
+                    bool isNextStationKeyDown = Game.IsEnabledControlPressed(2, Control.VehicleNextRadio);
+                    bool isPreviousStationKeyDown = Game.IsEnabledControlPressed(2, Control.VehiclePrevRadio);
 
                     if (!radioChangeHandled && isPreviousStationKeyDown)
                     {
@@ -255,7 +315,7 @@ namespace RadioExpansion.AsiLibrary
                 Game.Player.Character.CurrentVehicle.IsRadioEnabled = false; // turn off the radio in the car
                 _radioTuner.ActivateNextStation(); // change to the next station
 
-                _vehicleRadioManager.SetVehicleCustomRadio(Game.Player.Character.CurrentVehicle.Handle, _radioTuner.CurrentStation);
+                _vehicleRadioManager.RegisterVehicleWithRadio(Game.Player.Character.CurrentVehicle.Handle, _radioTuner.CurrentStation);
             }
         }
 

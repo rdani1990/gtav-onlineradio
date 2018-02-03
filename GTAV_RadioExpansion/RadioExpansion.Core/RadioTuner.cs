@@ -33,11 +33,6 @@ namespace RadioExpansion.Core
                     CurrentStation?.Stop(); // completely stop the radio station (it can be in paused state)
 
                     _activeStationIndex = newStationIndex;
-
-                    if (_activeStationIndex.HasValue)
-                    {
-                        CurrentStation.Play();
-                    }
                 }
             }
         }
@@ -122,15 +117,8 @@ namespace RadioExpansion.Core
             if (_nextStationIndex.HasValue)
             {
                 CurrentStation = _radios[_nextStationIndex.Value];
+                CurrentStation.Play();
                 _nextStationIndex = null;
-            }
-        }
-        
-        public void LogCurrentTrack()
-        {
-            if (CurrentStation != null)
-            {
-                Logger.LogTrack(CurrentStation.Name, CurrentStation.CurrentTrackMetaData);
             }
         }
     }

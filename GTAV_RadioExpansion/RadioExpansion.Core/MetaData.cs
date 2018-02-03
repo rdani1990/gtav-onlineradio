@@ -1,7 +1,9 @@
-﻿using System;
+﻿using RadioExpansion.Core.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace RadioExpansion.Core
 {
@@ -26,14 +28,11 @@ namespace RadioExpansion.Core
 
     public class LocalStreamMetaData : MetaData
     {
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan Start { get; set; }
-        public TimeSpan End { get; set; }
 
-        public LocalStreamMetaData(XElement xmlNode) : base(xmlNode.Element("Artist")?.Value, xmlNode.Element("Title")?.Value)
-        {
-            Start = TimeSpan.Parse(xmlNode.Element("Start").Value);
-            End = TimeSpan.Parse(xmlNode.Element("End").Value);
-        }
+        [XmlElement(Type = typeof(XmlTimeSpan))]
+        public TimeSpan End { get; set; }
     }
 
     public class OnlineStreamMetaData : MetaData

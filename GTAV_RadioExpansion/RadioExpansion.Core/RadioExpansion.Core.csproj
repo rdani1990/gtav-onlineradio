@@ -83,6 +83,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
+    <Compile Include="PlaylistReaders\PlaylistHelper.cs" />
+    <Compile Include="Serialization\ConfigSerializer.cs" />
+    <Compile Include="Serialization\XmlIncludeAttribute.cs" />
+    <Compile Include="Serialization\XmlTimeSpan.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="PlaylistReaders\M3uPlaylistReader.cs" />

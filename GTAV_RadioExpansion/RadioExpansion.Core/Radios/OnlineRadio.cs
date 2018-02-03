@@ -3,11 +3,15 @@ using NAudio.Wave;
 using System;
 using System.Net;
 using System.Threading;
-using System.Xml.Linq;
 using RadioExpansion.Core.Logging;
+using System.Linq;
+using RadioExpansion.Core.PlaylistReaders;
+using System.Collections.Generic;
+using RadioExpansion.Core.Serialization;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
+    [XmlWhitelistSerialization]
     public class OnlineRadio : Radio
     {
         private object _metaSyncLock = new object();
@@ -16,11 +20,44 @@ namespace RadioExpansion.Core.RadioPlayers
 
         private const int META_SYNC_INTERVAL = 15000;
 
+        protected override int MetaDataSyncInterval => 15000;
+
         protected override bool AlwaysSleepWhenBufferIsFull => false;
 
-        public OnlineRadio(string folder, Uri uri, XElement config) : base(folder, config, META_SYNC_INTERVAL)
+        protected override void OnPathChanged()
         {
-            _uri = uri;
+            IEnumerable<string> audioFiles, playlistFiles;
+            GetFilesFromRadioFolder(out audioFiles, out playlistFiles);
+
+            int playlistFilesCount = playlistFiles.Count();
+
+            if (playlistFilesCount > 0)
+            {
+                string playlistPath = playlistFiles.First();
+                var filesInPlaylist = PlaylistHelper.ProcessPlaylist(playlistPath);
+
+                if (playlistFilesCount > 1)
+                {
+                    Logger.Log($"{playlistFilesCount} playlists were found in online radio folder '{RelativeDirectoryPath}'. Only one playlist is allowed! Took '{playlistPath}', ignored the rest.");
+                }
+
+                if (filesInPlaylist.Length == 0)
+                {
+                    Logger.Log($"Playlist '{playlistPath}' contains no elements.");
+                }
+                else if (filesInPlaylist[0].StartsWith("http"))
+                {
+                    _uri = new Uri(filesInPlaylist[0]);
+                }
+                else
+                {
+                    Logger.Log($"Unknown URL found on the first line of playlist file '{playlistPath}'. Url: {filesInPlaylist[0]}");
+                }
+            }
+            else
+            {
+                Logger.Log($"No playlist was found for online radio folder '{RelativeDirectoryPath}'. Use playlist files with one of the following extensions: '.m3u', '.m3u8' or '.pls'.");
+            }
         }
 
         public override void RefreshMetaInfo()
@@ -63,7 +100,7 @@ namespace RadioExpansion.Core.RadioPlayers
             }
             catch (Exception ex)
             {
-                Logger.Log("Failed to refresh metadata info for URL '{0}'. Error: {1}", _uri, ex);
+                Logger.Log("Failed to refresh metadata info for radio '{0}' with URL '{1}'. Error: {2}", Name, _uri, ex);
             }
             finally
             {

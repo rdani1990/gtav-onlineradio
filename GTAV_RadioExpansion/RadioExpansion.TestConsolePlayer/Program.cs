@@ -51,7 +51,7 @@ namespace RadioExpansion.TestConsolePlayer
 
                     case ConsoleKey.Enter:
                         radioTuner.ActivateNextStation();
-                        radioTuner.LogCurrentTrack();
+                        Logger.LogTrack(radioTuner.CurrentStation.Name, radioTuner.CurrentStation.CurrentTrackMetaData);
 
                         PrintCurrentRadio(radioTuner);
                         break;
@@ -95,20 +95,23 @@ namespace RadioExpansion.TestConsolePlayer
 
         static Radio[] LoadRadios()
         {
-            Console.Write("Waiting for radios to be loaded... ");
+            Console.WriteLine("Waiting for radios to be loaded... ");
+            
+            var radios = RadioConfigManager.LoadConfig()?.Radios;
 
-            var radios = RadioConfigManager.LoadRadios();
-
-            if (radios.Length > 0)
+            if (radios != null)
             {
+                if (radios.Length > 0)
+                {
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Loading finished successfully.");
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Loading finished successfully, but no radios were found.");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Loading finished successfully.");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Loading finished successfully, but no radios were found.");
+                }
             }
 
             Console.ResetColor();

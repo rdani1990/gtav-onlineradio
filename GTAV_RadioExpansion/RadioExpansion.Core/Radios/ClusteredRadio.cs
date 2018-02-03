@@ -10,12 +10,15 @@ using System.Threading;
 using System.Xml.Linq;
 using File = System.IO.File;
 using RadioExpansion.Core.Logging;
+using RadioExpansion.Core.Serialization;
+using RadioExpansion.Core.PlaylistReaders;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
     /// <summary>
     /// Same conception what San Andreas radio stations had: instead of having one big file, the adverts, intro and outro parts, and track bodies are in separated files.
     /// </summary>
+    [XmlWhitelistSerialization]
     public class ClusteredRadio : Radio
     {
         private LocalClusteredWaveStream _audioStream;
@@ -25,20 +28,27 @@ namespace RadioExpansion.Core.RadioPlayers
         private CurrentTrackInfo _currentTrackInfo;
         private bool _metaLoaded;
         private object _moveToNextTrackLock = new object();
-        
-        private const int META_SYNC_INTERVAL = 3000;
-        private const string AdvertsFolder = "[adverts]";
 
+        private static string[] _genericAdvertsPath;
         private static Random _rnd = new Random();
+
+        private const string AdvertsFolder = "[adverts]";
 
         public override float BufferLengthInSeconds => 5;
 
         public int TrackCount => _musicTracks.Count;
 
         public int AdvertCount => _adverts.Count;
-        
-        public ClusteredRadio(string folder, IEnumerable<string> files, XElement config) : base(folder, config, META_SYNC_INTERVAL)
+
+        protected override int MetaDataSyncInterval => 3000;
+
+        protected override void OnPathChanged()
         {
+            IEnumerable<string> audioFiles, playlistFiles;
+            GetFilesFromRadioFolder(out audioFiles, out playlistFiles);
+
+            audioFiles = audioFiles.Union(playlistFiles.SelectMany(p => PlaylistHelper.ProcessPlaylist(p))); // adds all the other tracks from all the playlists
+
             _musicTracks = new Queue<ClusteredTrack>();
             _adverts = new Queue<string>();
             _audioStream = new LocalClusteredWaveStream();
@@ -46,7 +56,7 @@ namespace RadioExpansion.Core.RadioPlayers
             var musicTracks = new List<ClusteredTrack>();
             var adverts = new List<string>();
 
-            foreach (string path in files)
+            foreach (string path in audioFiles)
             {
                 if (File.Exists(path))
                 {
@@ -74,13 +84,18 @@ namespace RadioExpansion.Core.RadioPlayers
                 }
             }
 
-            if (Directory.Exists(Path.Combine(folder, AdvertsFolder))) // custom adverts for the radio station
+            if (_genericAdvertsPath == null && Directory.Exists(Path.Combine(AbsoluteDirectoryPath, $"..\\{AdvertsFolder}"))) // generic adverts
             {
-                adverts.AddRange(Directory.GetFiles(Path.Combine(folder, AdvertsFolder)));
+                _genericAdvertsPath = Directory.GetFiles(Path.Combine(AbsoluteDirectoryPath, $"..\\{AdvertsFolder}"));
             }
-            if (Directory.Exists(Path.Combine(folder, $"..\\{AdvertsFolder}"))) // generic adverts
+
+            if (_genericAdvertsPath != null && Directory.Exists(Path.Combine(AbsoluteDirectoryPath, AdvertsFolder))) // custom adverts for the radio station
             {
-                adverts.AddRange(Directory.GetFiles(Path.Combine(folder, $"..\\{AdvertsFolder}")));
+                adverts.AddRange(Directory.GetFiles(Path.Combine(AbsoluteDirectoryPath, AdvertsFolder)));
+            }
+            if (_genericAdvertsPath != null) // generic adverts
+            {
+                adverts.AddRange(_genericAdvertsPath);
             }
 
             adverts = adverts.Where(p => HasAllowedAudioExtension(p)).ToList();
@@ -304,7 +319,7 @@ namespace RadioExpansion.Core.RadioPlayers
                 var shell = new WshShell();
                 var link = (IWshShortcut)shell.CreateShortcut(path);
 
-                if (!System.IO.File.Exists(link.TargetPath))
+                if (!File.Exists(link.TargetPath))
                 {
                     throw new FileNotFoundException($"Shortcut '{path}' links to {link.TargetPath}, but the file doesn't exists.");
                 }

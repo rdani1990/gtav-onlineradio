@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RadioExpansion.AsiLibrary
 {
     /// <summary>
-    /// Maintains the list of vehicles which has custom radio on.
+    /// Pairs vehicles with custom radio info.
     /// </summary>
     public class VehicleRadioManager
     {
@@ -15,7 +15,7 @@ namespace RadioExpansion.AsiLibrary
             _vehicleRadios = new Dictionary<int, Radio>();
         }
 
-        public void SetVehicleCustomRadio(int vehiclePtr, Radio radio)
+        public void RegisterVehicleWithRadio(int vehiclePtr, Radio radio)
         {
             _vehicleRadios[vehiclePtr] = radio;
         }
@@ -27,10 +27,10 @@ namespace RadioExpansion.AsiLibrary
 
         public void RemoveVehicleCustomRadio(int vehiclePtr)
         {
-            _vehicleRadios.Remove(vehiclePtr);
+            _vehicleRadios[vehiclePtr] = null;
         }
 
-        public bool IsVehicleCustomRadioOn(int vehiclePtr)
+        public bool HasVehicleRadioInfo(int vehiclePtr)
         {
             return _vehicleRadios.ContainsKey(vehiclePtr);
         }

@@ -12,6 +12,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Net.Configuration;
 using RadioExpansion.Core.Logging;
+using RadioExpansion.Core.Serialization;
+using System.Xml.Serialization;
+using System.Collections.Generic;
 
 namespace RadioExpansion.Core.RadioPlayers
 {
@@ -24,6 +27,7 @@ namespace RadioExpansion.Core.RadioPlayers
         Suspended
     }
 
+    [XmlWhitelistSerialization]
     public abstract class Radio : IDisposable
     {
         /// <summary>
@@ -44,7 +48,7 @@ namespace RadioExpansion.Core.RadioPlayers
         private const int DEFAULT_BUFFER_LENGTH_IN_SECONDS = 20;
 
         /// <summary>
-        /// If this value is true, the playing's gonna stop if KeepAlive() method wasn't invoked within TIME_WITHOUT_SCRIPT_NOTIFY milliseconds.
+        /// If this value is true, the playing's gonna stop if <see cref="KeepAlive" /> method wasn't invoked within <see cref="TIME_WITHOUT_SCRIPT_NOTIFY" /> milliseconds.
         /// </summary>
         public static bool PauseIfNotNofified { get; set; }
 
@@ -63,13 +67,22 @@ namespace RadioExpansion.Core.RadioPlayers
         private object _metaDataLock = new object();
         private bool _restartPlayingInSuspendedStateIfNotified;
         private readonly float _defaultVolume;
+        private bool _hasOngoingConversation;
+        private float _volume;
+        private MetaData _currentTrackMetaData;
+        private string _relativeDirectoryPath;
+
+        /// <summary>
+        /// Radio has some problems (e. g. empty folder for clustered radio, no Uri for online radios, etc.), and should be ignored.
+        /// </summary>
+        public bool ShouldIgnore { get; protected set; }
 
         /// <summary>
         /// Radio volume used in GTA V. 0 = Off, 1 = Max
         /// </summary>
         private static float _defaultVolumeMultiplier = 1;
 
-        private float _volume;
+        [XmlWhitelisted]
         public float Volume
         {
             get { return _volume; }
@@ -80,7 +93,6 @@ namespace RadioExpansion.Core.RadioPlayers
             }
         }
 
-        private bool _hasOngoingConversation;
         public bool HasOngoingConversation
         {
             get { return _hasOngoingConversation; }
@@ -93,8 +105,7 @@ namespace RadioExpansion.Core.RadioPlayers
                 }
             }
         }
-        
-        private MetaData _currentTrackMetaData;
+
         public MetaData CurrentTrackMetaData
         {
             get
@@ -116,14 +127,26 @@ namespace RadioExpansion.Core.RadioPlayers
             }
         }
 
-        public string AbsoluteDirectoryPath { get; set; }
+        public string AbsoluteDirectoryPath => Path.Combine(RadioConfigManager.GetRadioFolder(), RelativeDirectoryPath);
 
+        [XmlWhitelisted]
         public string Name { get; set; }
+
 
         /// <summary>
         /// The path of the directory, relative to the root directory (the 'radios' folder)
         /// </summary>
-        public string RelativeDirectoryPath => Path.GetFileName(AbsoluteDirectoryPath);
+        [XmlWhitelisted, XmlAttribute("Folder")]
+        public virtual string RelativeDirectoryPath
+        {
+            get { return _relativeDirectoryPath; }
+            set
+            {
+                _relativeDirectoryPath = value;
+
+                OnPathChanged();
+            }
+        }
 
         public bool IsPlaying => (playbackState == StreamingPlaybackState.Playing || playbackState == StreamingPlaybackState.Buffering);
 
@@ -131,37 +154,58 @@ namespace RadioExpansion.Core.RadioPlayers
 
         protected virtual bool AlwaysSleepWhenBufferIsFull => true;
 
+        /// <summary>
+        /// This is the interval in ms for synchronizing the metadata for the currently played track.
+        /// </summary>
+        protected abstract int MetaDataSyncInterval { get; }
+
         static Radio()
         {
             SetDefaultVolumeMultiplier();
             EnableUnsafeHeaderParsing();
         }
 
-        public Radio(string absoluteDirectoryPath, XElement config, int metaSyncInterval)
+        public Radio()
         {
-            if (!Single.TryParse(config?.Element("Volume")?.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out _volume))
-            {
-                _volume = 1;
-            }
-
-            AbsoluteDirectoryPath = absoluteDirectoryPath;
-            Name = config?.Element("Name")?.Value ?? Path.GetFileName(absoluteDirectoryPath);
+            _volume = 1;
 
             _playbackTimer = new Timer();
             _playbackTimer.Interval = 250;
             _playbackTimer.Elapsed += PlaybackTimerElapsed;
 
             _metaSyncTimer = new Timer();
-            _metaSyncTimer.Interval = metaSyncInterval;
-            _metaSyncTimer.Elapsed += MetaSyncTimer_Elapsed;
-            _metaSyncTimer.Enabled = true;
+            _metaSyncTimer.Interval = MetaDataSyncInterval;
+            _metaSyncTimer.Elapsed += (s, e) => RefreshMetaInfo();
 
             _stopWatch = new Stopwatch();
 
             _restartPlayingInSuspendedStateIfNotified = true;
-
-            Task.Run((Action)RefreshMetaInfo);
         }
+
+        public void StartMetaSyncing()
+        {
+            if (!_metaSyncTimer.Enabled)
+            {
+                Task.Run(() =>
+                {
+                    RefreshMetaInfo();
+                    _metaSyncTimer.Enabled = true;
+                });
+            }
+        }
+
+        protected void GetFilesFromRadioFolder(out IEnumerable<string> audioFiles, out IEnumerable<string> playlistFiles)
+        {
+            var allFiles = Directory.GetFiles(AbsoluteDirectoryPath);
+
+            audioFiles = allFiles.Where(f => HasAllowedAudioExtension(f));
+            playlistFiles = allFiles.Where(f => HasAllowedPlaylistExtension(f));
+        }
+        
+        /// <summary>
+        /// Called when the <see cref="RelativeDirectoryPath" /> is changed.
+        /// </summary>
+        protected virtual void OnPathChanged() { }
 
         protected void RefreshVolume()
         {
@@ -240,7 +284,7 @@ namespace RadioExpansion.Core.RadioPlayers
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e);
+                    Logger.Log("Failed to stop radio '{0}'. Error: ", Name, e);
                 }
             }
         }
@@ -437,11 +481,6 @@ namespace RadioExpansion.Core.RadioPlayers
 
         public abstract void RefreshMetaInfo();
         
-        private void MetaSyncTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            RefreshMetaInfo();
-        }
-
         private void OnPlaybackStopped(object sender, StoppedEventArgs e)
         {
             Debug.WriteLine("Playback Stopped");
@@ -494,7 +533,7 @@ namespace RadioExpansion.Core.RadioPlayers
             }
         }
 
-        public static bool HasAllowedAudioExtension(string path)
+        protected static bool HasAllowedAudioExtension(string path)
         {
             var allowedExtensions = new[]
             {
@@ -504,7 +543,7 @@ namespace RadioExpansion.Core.RadioPlayers
             return allowedExtensions.Contains(Path.GetExtension(path).ToLower());
         }
 
-        public static bool HasAllowedPlaylistExtension(string path)
+        protected static bool HasAllowedPlaylistExtension(string path)
         {
             var allowedExtensions = new[]
             {

@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ScriptHookVDotNet">
-      <HintPath>..\packages\ScriptHookVDotNet\ScriptHookVDotNet.dll</HintPath>
+    <Reference Include="ScriptHookVDotNet2">
+      <HintPath>..\packages\ScriptHookVDotNet\ScriptHookVDotNet2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
